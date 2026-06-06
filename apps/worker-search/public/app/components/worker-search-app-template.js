@@ -56,7 +56,7 @@ export const workerSearchStyles = `
   }
 
   .field-search svg {
-    color: #8a8270;
+    color: #6b6456;
     flex: none;
     height: 18px;
     width: 18px;
@@ -78,7 +78,7 @@ export const workerSearchStyles = `
   }
 
   input[type="search"]::placeholder {
-    color: #9a9180;
+    color: #6b645a;
     font-weight: 400;
   }
 
@@ -95,7 +95,7 @@ export const workerSearchStyles = `
   }
 
   .field-sort .label-text {
-    color: #8a8270;
+    color: #6b6456;
     flex: none;
   }
 
@@ -248,7 +248,7 @@ export const workerSearchStyles = `
   }
 
   thead th.static {
-    color: #9a9180;
+    color: #6b645a;
     padding: 11px 16px;
   }
 
@@ -282,7 +282,7 @@ export const workerSearchStyles = `
   }
 
   .c-name .fall {
-    color: #9a9180;
+    color: #6b645a;
     font-family: var(--mono);
     font-size: 0.66rem;
     font-weight: 600;
@@ -310,7 +310,7 @@ export const workerSearchStyles = `
   }
 
   .c-num .unit {
-    color: #9a9180;
+    color: #6b645a;
     font-size: 0.78em;
   }
 
@@ -346,7 +346,7 @@ export const workerSearchStyles = `
   }
 
   .empty span {
-    color: #8a8270;
+    color: #6b6456;
     font-size: 0.88rem;
   }
 

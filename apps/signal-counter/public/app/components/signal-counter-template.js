@@ -44,7 +44,7 @@ export const counterStyles = `
     --raise: #20262b;
     --ink: #f3f1ea;
     --muted: #8c948f;
-    --faint: #5d6560;
+    --faint: #828985;
     --line: rgba(243, 241, 234, 0.1);
     --line-strong: rgba(243, 241, 234, 0.2);
     --accent: #e7b53c;

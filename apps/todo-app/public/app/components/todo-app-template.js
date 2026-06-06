@@ -16,7 +16,7 @@ export const todoAppStyles = `
     --ink-3: #756f5e;
     --hair: rgba(22, 21, 15, 0.16);
     --hair-soft: rgba(22, 21, 15, 0.1);
-    --accent: #1f8a4c;
+    --accent: #1d8248;
     --accent-soft: #8fe1a2;
     --cream: #f8f1df;
     --cream-2: rgba(248, 241, 223, 0.62);

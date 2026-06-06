@@ -4,10 +4,10 @@
   --surface: #fffdf6;
   --ink: #161512;
   --muted: #5f5a50;
-  --faint: #8a8478;
+  --faint: #6d675e;
   --line: rgba(22, 21, 18, 0.12);
   --line-strong: rgba(22, 21, 18, 0.22);
-  --accent: #0a7d46;
+  --accent: #096e3e;
   --accent-soft: rgba(10, 125, 70, 0.1);
 
   --code-bg: #15140f;
@@ -17,7 +17,7 @@
   --tok-num: #c79be0;
   --tok-bool: #6fb6e0;
 
-  --m-get: #0a7d46;
+  --m-get: #096e3e;
   --m-get-bg: rgba(10, 125, 70, 0.12);
   --m-post: #2563a8;
   --m-post-bg: rgba(37, 99, 168, 0.12);

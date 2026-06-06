@@ -12,7 +12,7 @@ export const THEMES = [
       "--app-surface": "#fffaf0",
       "--app-panel": "#ebe2d0",
       "--app-ink": "#17211b",
-      "--app-muted": "#667064",
+      "--app-muted": "#5a6358",
       "--app-line": "rgba(23, 33, 27, 0.16)",
       "--app-strong-line": "rgba(23, 33, 27, 0.32)",
       "--app-accent": "#2f68d8",
