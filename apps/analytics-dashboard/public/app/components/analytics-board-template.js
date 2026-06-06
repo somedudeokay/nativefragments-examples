@@ -369,18 +369,36 @@ export const resolveDashboardState = ({
   };
 };
 
-const toneLabel = (delta) => (delta >= 0 ? "up" : "down");
-
 const signedDelta = (delta) => `${delta > 0 ? "+" : ""}${delta.toFixed(1)}%`;
 
-const pointsFor = (series) =>
-  series
-    .map((value, index) => {
-      const x = Math.round((index / (series.length - 1)) * 280);
-      const y = Math.round(112 - value);
-      return `${x},${y}`;
-    })
-    .join(" ");
+const CHART_W = 300;
+const CHART_H = 120;
+const CHART_PAD = 6;
+
+const chartGeometry = (series) => {
+  const max = Math.max(...series, 1);
+  const min = Math.min(...series);
+  const span = Math.max(max - min, 1);
+  const innerW = CHART_W - CHART_PAD * 2;
+  const innerH = CHART_H - CHART_PAD * 2;
+  const coords = series.map((value, index) => {
+    const x = CHART_PAD + (index / (series.length - 1)) * innerW;
+    const y = CHART_PAD + (1 - (value - min) / span) * innerH;
+    return [Number(x.toFixed(1)), Number(y.toFixed(1))];
+  });
+  return { coords, max, min };
+};
+
+const linePath = (coords) =>
+  coords.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x} ${y}`).join(" ");
+
+const areaPath = (coords) =>
+  `${linePath(coords)} L${coords[coords.length - 1][0]} ${CHART_H - CHART_PAD} L${coords[0][0]} ${CHART_H - CHART_PAD} Z`;
+
+const ARROW_UP =
+  '<svg viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 2.2 10 7H7.5v3.2h-3V7H2z"/></svg>';
+const ARROW_DOWN =
+  '<svg viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 9.8 2 5h2.5V1.8h3V5H10z"/></svg>';
 
 const renderRangeControls = (state) =>
   RANGES.map(
@@ -408,41 +426,61 @@ const renderSpark = (metric) => `<span class="spark" aria-hidden="true">
     .join("")}
 </span>`;
 
-const renderMetric = (metric) => `<article class="metric-card tone-${escapeHtml(metric.tone)}">
-  <div>
-    <p>${escapeHtml(metric.label)}</p>
-    <strong>${escapeHtml(metric.displayValue)}</strong>
+const renderMetric = (metric) => {
+  const positive = metric.delta >= 0;
+  return `<article class="metric-card tone-${escapeHtml(metric.tone)}">
+  <div class="metric-top">
+    <p class="metric-label">${escapeHtml(metric.label)}</p>
+    <span class="delta ${positive ? "positive" : "negative"}">
+      ${positive ? ARROW_UP : ARROW_DOWN}<span>${escapeHtml(signedDelta(metric.delta))}</span>
+    </span>
   </div>
+  <strong class="metric-value">${escapeHtml(metric.displayValue)}</strong>
   ${renderSpark(metric)}
-  <span class="delta ${metric.delta >= 0 ? "positive" : "negative"}">
-    ${escapeHtml(signedDelta(metric.delta))} ${escapeHtml(toneLabel(metric.delta))}
-  </span>
 </article>`;
+};
 
-const renderChart = (state) => `<section class="chart-panel" aria-label="${escapeHtml(
-  state.chartLabel,
-)}">
+const renderChart = (state) => {
+  const { coords, max, min } = chartGeometry(state.series);
+  const last = state.series[state.series.length - 1];
+  const first = state.series[0];
+  const trend = last - first;
+  const trendUp = trend >= 0;
+  const dot = coords[coords.length - 1];
+  return `<section class="chart-panel" aria-label="${escapeHtml(state.chartLabel)}">
   <div class="panel-heading">
     <div>
       <p>Trend</p>
       <h2>${escapeHtml(state.chartLabel)}</h2>
     </div>
-    <span>${escapeHtml(state.range.label)} / ${escapeHtml(state.segment.label)}</span>
+    <span class="chart-range">${escapeHtml(state.range.label)} · ${escapeHtml(state.segment.label)}</span>
   </div>
-  <svg viewBox="0 0 280 126" role="img" aria-label="${escapeHtml(
-    state.chartLabel,
-  )} trend line">
-    <path class="grid-line" d="M0 28H280M0 64H280M0 100H280"></path>
-    <polyline points="${pointsFor(state.series)}"></polyline>
-  </svg>
-  <div class="chart-bars" aria-hidden="true">
-    ${state.series
-      .map((value) => `<i style="height: ${value}%"></i>`)
-      .join("")}
+  <div class="chart-figures">
+    <span class="chart-now">${escapeHtml(String(Math.round(last)))}<small>index</small></span>
+    <span class="chart-trend ${trendUp ? "positive" : "negative"}">${trendUp ? ARROW_UP : ARROW_DOWN}<span>${escapeHtml(`${trendUp ? "+" : ""}${Math.round(trend)} pts`)}</span></span>
+  </div>
+  <div class="chart-plot">
+    <svg viewBox="0 0 ${CHART_W} ${CHART_H}" preserveAspectRatio="none" role="img" aria-label="${escapeHtml(state.chartLabel)} trend over ${escapeHtml(state.range.label)}">
+      <defs>
+        <linearGradient id="${escapeHtml(`fill-${state.section.id}`)}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#171511" stop-opacity="0.14"></stop>
+          <stop offset="100%" stop-color="#171511" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <path class="grid-line" d="M${CHART_PAD} ${CHART_PAD + (CHART_H - CHART_PAD * 2) * 0.25}H${CHART_W - CHART_PAD}M${CHART_PAD} ${CHART_PAD + (CHART_H - CHART_PAD * 2) * 0.5}H${CHART_W - CHART_PAD}M${CHART_PAD} ${CHART_PAD + (CHART_H - CHART_PAD * 2) * 0.75}H${CHART_W - CHART_PAD}"></path>
+      <path class="chart-area" d="${areaPath(coords)}" fill="url(#${escapeHtml(`fill-${state.section.id}`)})"></path>
+      <path class="chart-line" d="${linePath(coords)}"></path>
+      <circle class="chart-dot" cx="${dot[0]}" cy="${dot[1]}" r="3.4"></circle>
+    </svg>
+    <span class="chart-axis chart-axis-high">${escapeHtml(String(Math.round(max)))}</span>
+    <span class="chart-axis chart-axis-low">${escapeHtml(String(Math.round(min)))}</span>
   </div>
 </section>`;
+};
 
-const renderChannels = (state) => `<section class="table-panel">
+const renderChannels = (state) => {
+  const maxQuality = Math.max(...state.channels.map((c) => c.quality), 1);
+  return `<section class="table-panel">
   <div class="panel-heading">
     <div>
       <p>Mix</p>
@@ -451,18 +489,28 @@ const renderChannels = (state) => `<section class="table-panel">
     <span>Quality indexed</span>
   </div>
   <div class="channel-table" role="table" aria-label="Primary channel performance">
+    <div class="channel-row channel-head" role="row">
+      <span role="columnheader">Channel</span>
+      <span role="columnheader">Sessions</span>
+      <span role="columnheader">Share</span>
+      <span role="columnheader">Quality</span>
+    </div>
     ${state.channels
       .map(
         (channel) => `<div class="channel-row" role="row">
-          <span role="cell">${escapeHtml(channel.name)}</span>
-          <span role="cell">${escapeHtml(formatNumber(channel.value))}</span>
-          <span role="cell">${escapeHtml(channel.share)}%</span>
-          <span role="cell">${escapeHtml(channel.quality.toFixed(1))}</span>
+          <span class="channel-name" role="cell">${escapeHtml(channel.name)}</span>
+          <span class="channel-num" role="cell">${escapeHtml(formatNumber(channel.value))}</span>
+          <span class="channel-num" role="cell">${escapeHtml(channel.share)}%</span>
+          <span class="channel-quality" role="cell">
+            <span class="quality-bar" aria-hidden="true"><i style="width: ${Math.round((channel.quality / maxQuality) * 100)}%"></i></span>
+            <span class="quality-val">${escapeHtml(channel.quality.toFixed(1))}</span>
+          </span>
         </div>`,
       )
       .join("")}
   </div>
 </section>`;
+};
 
 const renderEvents = (state) => `<section class="event-panel">
   <div class="panel-heading">
@@ -489,9 +537,9 @@ export const renderAnalyticsBoard = (input = {}) => {
   return `<section class="board" data-board-section="${escapeHtml(state.section.id)}">
     <header class="board-header">
       <div>
-        <p class="board-kicker">${escapeHtml(state.section.navLabel)} / Native Fragments</p>
+        <p class="board-kicker">${escapeHtml(state.section.kicker)} · ${escapeHtml(state.section.navLabel)}</p>
         <h2>${escapeHtml(state.section.title)}</h2>
-        <p>${escapeHtml(state.section.summary)}</p>
+        <p class="board-summary">${escapeHtml(state.section.summary)}</p>
       </div>
       <div class="status">
         <span></span>
@@ -528,6 +576,17 @@ export const renderAnalyticsBoard = (input = {}) => {
 export const analyticsBoardStyles = `
   :host {
     display: block;
+    --ink: #1a1712;
+    --ink-soft: #534c3f;
+    --muted: #7a7160;
+    --paper: #fbf7ed;
+    --card: #fffaf1;
+    --line: #ddd2c0;
+    --line-soft: #e7dccb;
+    --inset: #f4ecdd;
+    --amber: #c08a2c;
+    --pos: #2c6a3a;
+    --neg: #9a3b34;
   }
 
   * {
@@ -535,19 +594,16 @@ export const analyticsBoardStyles = `
   }
 
   .board {
-    background: #fbf7ed;
-    border: 1px solid #d8cfc0;
-    border-radius: 8px;
-    box-shadow: 0 24px 70px rgba(43, 35, 22, 0.12);
-    color: #171511;
-    min-height: 720px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 1px 0 #fff inset, 0 18px 50px rgba(43, 35, 22, 0.1);
+    color: var(--ink);
     overflow: hidden;
-    padding: 24px;
+    padding: 22px;
   }
 
   .board-header,
-  .controls,
-  .notice,
   .metrics,
   .lower-grid,
   .panel-heading,
@@ -557,31 +613,44 @@ export const analyticsBoardStyles = `
   }
 
   .board-header {
-    align-items: start;
-    gap: 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--line-soft);
+    gap: 20px 24px;
     grid-template-columns: minmax(0, 1fr) auto;
+    padding-bottom: 20px;
   }
 
   .board-kicker,
   .panel-heading p,
-  .metric-card p,
+  .metric-label,
   .status,
   .delta,
+  .chart-trend,
+  .chart-now small,
+  .chart-axis,
   .notice strong,
-  .event-panel time,
-  .channel-row span:not(:first-child) {
+  .channel-head span,
+  .channel-num,
+  .quality-val,
+  .event-panel time {
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
 
   .board-kicker,
   .panel-heading p,
-  .metric-card p {
-    color: #716957;
-    font-size: 0.75rem;
+  .metric-label,
+  .channel-head span,
+  .notice strong {
+    color: var(--muted);
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0;
-    margin: 0 0 6px;
+    letter-spacing: 0.09em;
+    margin: 0;
     text-transform: uppercase;
+  }
+
+  .board-kicker {
+    margin-bottom: 8px;
   }
 
   h2,
@@ -590,61 +659,66 @@ export const analyticsBoardStyles = `
   }
 
   .board-header h2 {
-    color: #171511;
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-    font-size: 2.3rem;
-    font-weight: 740;
-    letter-spacing: 0;
-    line-height: 0.98;
-    max-width: 780px;
+    color: var(--ink);
+    font-family: "Iowan Old Style", ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 2.05rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1;
+    max-width: 720px;
   }
 
-  .board-header p:last-child {
-    color: #4e493f;
-    font-size: 1rem;
-    line-height: 1.65;
-    margin-top: 12px;
-    max-width: 760px;
+  .board-header p.board-summary {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-top: 10px;
+    max-width: 60ch;
   }
 
   .status {
     align-items: center;
-    background: #171511;
-    border: 1px solid #302b22;
-    border-radius: 8px;
-    color: #fbf7ed;
-    font-size: 0.75rem;
+    align-self: start;
+    background: var(--ink);
+    border-radius: 999px;
+    color: var(--paper);
+    display: inline-flex;
+    font-size: 0.7rem;
+    font-weight: 600;
     gap: 8px;
-    grid-template-columns: auto 1fr;
-    padding: 10px 12px;
+    letter-spacing: 0.04em;
+    padding: 7px 14px 7px 11px;
+    text-transform: uppercase;
     white-space: nowrap;
   }
 
   .status span {
     background: #63b365;
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(99, 179, 101, 0.18);
-    height: 8px;
-    width: 8px;
+    box-shadow: 0 0 0 3px rgba(99, 179, 101, 0.2);
+    height: 7px;
+    width: 7px;
   }
 
   .controls {
-    gap: 10px;
-    grid-template-columns: auto minmax(0, 1fr);
-    margin-top: 24px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-top: 20px;
   }
 
   .control-group {
-    background: #eee6d7;
-    border: 1px solid #d7cbbb;
+    background: var(--inset);
+    border: 1px solid var(--line-soft);
     border-radius: 8px;
-    display: flex;
-    gap: 4px;
-    padding: 4px;
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
   }
 
   .segments {
-    justify-self: end;
+    margin-left: auto;
   }
 
   .control {
@@ -652,20 +726,26 @@ export const analyticsBoardStyles = `
     background: transparent;
     border: 0;
     border-radius: 6px;
-    color: #4e493f;
+    color: var(--ink-soft);
     cursor: pointer;
-    font: 700 0.82rem ui-sans-serif, system-ui, sans-serif;
-    min-height: 34px;
-    padding: 0 12px;
+    font: 600 0.8rem ui-sans-serif, system-ui, sans-serif;
+    min-height: 32px;
+    padding: 0 13px;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+
+  .control:hover {
+    color: var(--ink);
   }
 
   .control.wide {
-    min-width: 98px;
+    min-width: 92px;
   }
 
   .control[aria-pressed="true"] {
-    background: #171511;
-    color: #fbf7ed;
+    background: var(--ink);
+    box-shadow: 0 1px 2px rgba(26, 23, 18, 0.25);
+    color: var(--paper);
   }
 
   .control:focus-visible {
@@ -674,108 +754,139 @@ export const analyticsBoardStyles = `
   }
 
   .notice {
-    align-items: center;
-    background: #eaf1ec;
-    border: 1px solid #b8cdbc;
+    align-items: baseline;
+    background: linear-gradient(180deg, #eef3ed, #e8efe9);
+    border: 1px solid #c4d6c7;
+    border-left: 3px solid #5f9a6c;
     border-radius: 8px;
-    color: #243326;
-    gap: 12px;
-    grid-template-columns: auto 1fr;
-    line-height: 1.5;
-    margin-top: 18px;
-    padding: 14px 16px;
+    color: #233825;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    line-height: 1.45;
+    margin-top: 16px;
+    padding: 12px 16px;
   }
 
   .notice strong {
-    font-size: 0.75rem;
-    text-transform: uppercase;
+    color: #3c6346;
+  }
+
+  .notice span {
+    font-size: 0.92rem;
   }
 
   .metrics {
     gap: 12px;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-top: 18px;
+    margin-top: 16px;
   }
 
   .metric-card,
   .chart-panel,
   .table-panel,
   .event-panel {
-    background: #fffaf1;
-    border: 1px solid #d8cfc0;
-    border-radius: 8px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
   }
 
   .metric-card {
+    border-top: 2px solid var(--metric-accent, #b9ad97);
     display: grid;
     gap: 14px;
-    min-height: 168px;
-    padding: 16px;
+    grid-template-rows: auto auto 1fr;
+    min-height: 150px;
+    padding: 14px 15px 15px;
   }
 
-  .metric-card strong {
-    display: block;
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-    font-size: 2rem;
-    font-weight: 760;
-    line-height: 1;
+  .tone-green { --metric-accent: #5f9c63; }
+  .tone-blue { --metric-accent: #3f7ba1; }
+  .tone-amber { --metric-accent: #c08a2c; }
+  .tone-red { --metric-accent: #c0564d; }
+
+  .metric-top {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
   }
+
+  .metric-value {
+    display: block;
+    font-family: "Iowan Old Style", ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 1.95rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+
+  .delta,
+  .chart-trend {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    gap: 3px;
+    padding: 2px 7px 2px 5px;
+  }
+
+  .delta svg,
+  .chart-trend svg {
+    height: 11px;
+    width: 11px;
+  }
+
+  .positive {
+    background: rgba(44, 106, 58, 0.1);
+    color: var(--pos);
+  }
+
+  .positive svg { fill: var(--pos); }
+
+  .negative {
+    background: rgba(154, 59, 52, 0.1);
+    color: var(--neg);
+  }
+
+  .negative svg { fill: var(--neg); }
 
   .spark {
     align-items: end;
+    align-self: end;
     display: grid;
-    gap: 4px;
+    gap: 3px;
     grid-template-columns: repeat(8, 1fr);
-    height: 42px;
+    height: 38px;
   }
 
   .spark i {
-    background: #7b7568;
-    border-radius: 3px 3px 0 0;
+    background: var(--spark, #b3a890);
+    border-radius: 2px 2px 0 0;
     display: block;
-    min-height: 8px;
+    min-height: 4px;
+    opacity: 0.55;
   }
 
-  .tone-green .spark i,
-  .positive {
-    color: #286a39;
-  }
+  .spark i:last-child { opacity: 1; }
 
-  .tone-green .spark i {
-    background: #63b365;
-  }
-
-  .tone-blue .spark i {
-    background: #4380a6;
-  }
-
-  .tone-amber .spark i {
-    background: #c18d32;
-  }
-
-  .tone-red .spark i,
-  .negative {
-    color: #9d3f3a;
-  }
-
-  .tone-red .spark i {
-    background: #c85b52;
-  }
-
-  .delta {
-    align-self: end;
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
+  .tone-green .spark i { --spark: #5f9c63; }
+  .tone-blue .spark i { --spark: #3f7ba1; }
+  .tone-amber .spark i { --spark: #c08a2c; }
+  .tone-red .spark i { --spark: #c0564d; }
 
   .lower-grid {
     gap: 12px;
-    grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(290px, 0.92fr);
+    grid-template-rows: auto auto;
     margin-top: 12px;
   }
 
   .chart-panel {
-    min-height: 340px;
+    grid-row: span 2;
     padding: 18px;
   }
 
@@ -784,98 +895,176 @@ export const analyticsBoardStyles = `
     padding: 18px;
   }
 
-  .event-panel {
-    grid-column: 2;
+  .panel-heading {
+    align-items: baseline;
+    gap: 8px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-bottom: 16px;
   }
 
-  .panel-heading {
-    align-items: start;
-    gap: 12px;
-    grid-template-columns: minmax(0, 1fr) auto;
-    margin-bottom: 18px;
+  .panel-heading p {
+    margin-bottom: 5px;
   }
 
   .panel-heading h2 {
-    font-size: 1.02rem;
-    font-weight: 760;
+    font-family: "Iowan Old Style", ui-serif, Georgia, Cambria, serif;
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
   .panel-heading span {
-    color: #716957;
-    font-size: 0.82rem;
+    color: var(--muted);
+    font-size: 0.78rem;
   }
 
-  svg {
+  .chart-range {
+    font-family: ui-monospace, Menlo, monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .chart-figures {
+    align-items: baseline;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .chart-now {
+    font-family: "Iowan Old Style", ui-serif, Georgia, serif;
+    font-size: 1.7rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .chart-now small {
+    color: var(--muted);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-left: 6px;
+    text-transform: uppercase;
+  }
+
+  .chart-plot {
+    position: relative;
+  }
+
+  .chart-plot svg {
     display: block;
-    height: auto;
+    height: 168px;
     width: 100%;
   }
 
   .grid-line {
     fill: none;
-    stroke: #ded5c6;
+    stroke: #e3d8c7;
+    stroke-dasharray: 2 4;
     stroke-width: 1;
   }
 
-  polyline {
+  .chart-line {
     fill: none;
-    stroke: #171511;
+    stroke: var(--ink);
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-width: 4;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
   }
 
-  .chart-bars {
-    align-items: end;
-    border-top: 1px solid #e2d8c8;
-    display: grid;
-    gap: 7px;
-    grid-template-columns: repeat(12, 1fr);
-    height: 90px;
-    margin-top: 20px;
-    padding-top: 18px;
+  .chart-dot {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
   }
 
-  .chart-bars i {
-    background: #d0a349;
-    border-radius: 4px 4px 0 0;
-    display: block;
-    min-height: 12px;
+  .chart-axis {
+    color: var(--muted);
+    font-size: 0.66rem;
+    font-variant-numeric: tabular-nums;
+    position: absolute;
+    right: 2px;
   }
+
+  .chart-axis-high { top: 0; }
+  .chart-axis-low { bottom: 0; }
 
   .channel-table {
     display: grid;
-    gap: 8px;
+    gap: 2px;
   }
 
   .channel-row {
     align-items: center;
-    background: #f4eddf;
-    border: 1px solid #e3d8c7;
-    border-radius: 8px;
-    gap: 10px;
-    grid-template-columns: minmax(0, 1fr) 72px 52px 52px;
-    min-height: 44px;
-    padding: 0 12px;
+    column-gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 58px 42px 78px;
+    min-height: 38px;
+    padding: 7px 2px;
   }
 
-  .channel-row span:first-child {
-    font-weight: 720;
+  .channel-row:not(.channel-head) {
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .channel-head span {
+    font-size: 0.64rem;
+  }
+
+  .channel-head span:not(.channel-name) {
+    text-align: right;
+  }
+
+  .channel-name {
+    font-weight: 600;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .channel-row span:not(:first-child) {
-    color: #625b4d;
-    font-size: 0.78rem;
+  .channel-num {
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
     text-align: right;
+  }
+
+  .channel-quality {
+    align-items: center;
+    display: grid;
+    gap: 7px;
+    grid-template-columns: 1fr auto;
+  }
+
+  .quality-bar {
+    background: var(--inset);
+    border-radius: 999px;
+    height: 5px;
+    overflow: hidden;
+  }
+
+  .quality-bar i {
+    background: var(--amber);
+    border-radius: 999px;
+    display: block;
+    height: 100%;
+    min-width: 4px;
+  }
+
+  .quality-val {
+    color: var(--ink);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    text-align: right;
+    width: 30px;
   }
 
   .event-panel ol {
     display: grid;
-    gap: 10px;
+    gap: 0;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -883,23 +1072,26 @@ export const analyticsBoardStyles = `
 
   .event-panel li {
     align-items: start;
-    background: #f4eddf;
-    border: 1px solid #e3d8c7;
-    border-radius: 8px;
     gap: 12px;
-    grid-template-columns: 46px 1fr;
-    padding: 12px;
+    grid-template-columns: 44px 1fr;
+    padding: 11px 0;
+  }
+
+  .event-panel li + li {
+    border-top: 1px solid var(--line-soft);
   }
 
   .event-panel time {
-    color: #716957;
-    font-size: 0.75rem;
-    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding-top: 1px;
   }
 
-  .event-panel span {
-    color: #302b22;
-    line-height: 1.45;
+  .event-panel li span {
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    line-height: 1.4;
   }
 
   @media (max-width: 1120px) {
@@ -911,40 +1103,33 @@ export const analyticsBoardStyles = `
       grid-template-columns: 1fr;
     }
 
-    .event-panel {
-      grid-column: auto;
+    .chart-panel {
+      grid-row: auto;
     }
   }
 
   @media (max-width: 760px) {
     .board {
       border-radius: 0;
-      min-height: 0;
+      border-left: 0;
+      border-right: 0;
       padding: 16px;
     }
 
-    .board-header,
-    .controls,
-    .metrics,
-    .panel-heading {
+    .board-header {
       grid-template-columns: 1fr;
     }
 
     .board-header h2 {
-      font-size: 1.8rem;
+      font-size: 1.7rem;
     }
 
-    .status,
     .segments {
-      justify-self: start;
+      margin-left: 0;
     }
 
-    .control-group {
-      flex-wrap: wrap;
-    }
-
-    .metric-card strong {
-      font-size: 1.72rem;
+    .metric-value {
+      font-size: 1.78rem;
     }
   }
 
@@ -953,12 +1138,20 @@ export const analyticsBoardStyles = `
       grid-template-columns: 1fr;
     }
 
-    .channel-row {
-      grid-template-columns: minmax(0, 1fr) 64px;
+    .control-group {
+      flex: 1 1 100%;
     }
 
-    .channel-row span:nth-child(3),
-    .channel-row span:nth-child(4) {
+    .control {
+      flex: 1;
+    }
+
+    .channel-row {
+      grid-template-columns: minmax(0, 1fr) 60px 78px;
+    }
+
+    .channel-head span:nth-child(3),
+    .channel-row span:nth-child(3):not(.channel-quality) {
       display: none;
     }
   }
