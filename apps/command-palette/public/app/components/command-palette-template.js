@@ -139,7 +139,7 @@ export const paletteStyles = `
     margin-top: 0.15rem;
   }
 
-  .group h3 {
+  .group .group-label {
     color: var(--dim);
     font: 700 0.66rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
     letter-spacing: 0.14em;
@@ -307,8 +307,7 @@ export const commandListHtml = (items = commands, activeIndex = 0) => {
   items.forEach((command, index) => {
     if (command.section !== lastSection) {
       if (open) html += `</ul></section>`;
-      const groupId = `cp-group-${command.section.toLowerCase()}`;
-      html += `<section class="group" role="group" aria-labelledby="${groupId}"><h3 id="${groupId}">${command.section}</h3><ul role="presentation">`;
+      html += `<section class="group" role="group" aria-label="${command.section}"><div class="group-label" aria-hidden="true">${command.section}</div><ul role="presentation">`;
       lastSection = command.section;
       open = true;
     }
@@ -328,10 +327,10 @@ export const commandListHtml = (items = commands, activeIndex = 0) => {
 export const paletteHtml = (items = commands, activeIndex = 0) => `<section class="palette" role="dialog" aria-label="Command palette">
   <div class="field">
     <span class="lead">${ICONS.search}</span>
-    <input autocomplete="off" type="text" role="combobox" aria-expanded="true" aria-label="Search commands" placeholder="Search commands…" />
+    <input autocomplete="off" type="text" role="combobox" aria-expanded="true" aria-controls="cp-listbox" aria-autocomplete="list" aria-label="Search commands" placeholder="Search commands…" />
     <kbd>esc</kbd>
   </div>
-  <div class="scroller" role="listbox" aria-label="Commands">${commandListHtml(items, activeIndex)}</div>
+  <div class="scroller" id="cp-listbox" role="listbox" aria-label="Commands">${commandListHtml(items, activeIndex)}</div>
   <div class="hints">
     <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
     <span><kbd>↵</kbd> select</span>

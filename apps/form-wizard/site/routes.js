@@ -171,9 +171,11 @@ const wizardPage = ({ params, url }) => {
           <div
             class="meter"
             role="progressbar"
+            aria-label="Setup completion"
             aria-valuenow="${pct}"
             aria-valuemin="0"
             aria-valuemax="100"
+            aria-valuetext="${pct}% complete"
             style="--progress: ${pct}%"
           >
             <span></span>
