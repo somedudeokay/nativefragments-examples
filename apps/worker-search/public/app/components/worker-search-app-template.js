@@ -27,7 +27,7 @@ export const workerSearchStyles = `
     border-bottom: 1px solid rgba(22, 22, 21, 0.1);
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(220px, 1fr) auto;
+    grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.35fr) auto;
     padding: clamp(18px, 3vw, 30px);
   }
 
@@ -44,7 +44,8 @@ export const workerSearchStyles = `
     text-transform: uppercase;
   }
 
-  input {
+  input,
+  select {
     appearance: none;
     background: #f4f1e8;
     border: 1px solid rgba(22, 22, 21, 0.18);
@@ -59,7 +60,20 @@ export const workerSearchStyles = `
     width: 100%;
   }
 
-  input:focus {
+  select {
+    background-image:
+      linear-gradient(45deg, transparent 50%, #171612 50%),
+      linear-gradient(135deg, #171612 50%, transparent 50%);
+    background-position:
+      calc(100% - 18px) 50%,
+      calc(100% - 12px) 50%;
+    background-repeat: no-repeat;
+    background-size: 6px 6px;
+    padding-right: 34px;
+  }
+
+  input:focus,
+  select:focus {
     border-color: #9e4f12;
     box-shadow: 0 0 0 4px rgba(158, 79, 18, 0.14);
   }
@@ -117,7 +131,7 @@ export const workerSearchStyles = `
     border-bottom: 1px solid rgba(22, 22, 21, 0.09);
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(150px, 0.8fr) minmax(200px, 1.4fr) auto;
+    grid-template-columns: minmax(130px, 0.45fr) minmax(220px, 1.4fr) minmax(115px, 0.42fr) auto;
     min-height: 82px;
     padding: 16px clamp(18px, 3vw, 30px);
   }
@@ -130,6 +144,23 @@ export const workerSearchStyles = `
     color: #7b7469;
     font-family: "SFMono-Regular", Consolas, monospace;
     font-size: 0.78rem;
+  }
+
+  .mass {
+    display: grid;
+    gap: 3px;
+    justify-items: start;
+  }
+
+  .mass strong {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.94rem;
+  }
+
+  .mass span {
+    color: #665f54;
+    font-size: 0.76rem;
+    text-transform: uppercase;
   }
 
   .title {
@@ -205,7 +236,7 @@ export const workerSearchStyles = `
 
 export const renderRows = (rows) => {
   if (!rows.length) {
-    return `<p class="empty">No matching rows. Try worker, edge, Oslo, identity, or analytics.</p>`;
+    return `<p class="empty">No matching meteorites. Try Hoba, lunar, iron, Antarctica, 1880, or tonne-class.</p>`;
   }
 
   return rows
@@ -216,6 +247,10 @@ export const renderRows = (rows) => {
           <span class="title">
             <strong>${escapeHtml(row.title)}</strong>
             <span>${escapeHtml(row.summary)}</span>
+          </span>
+          <span class="mass">
+            <strong>${escapeHtml(row.mass == null ? "unknown" : `${Math.round(row.mass).toLocaleString()} g`)}</strong>
+            <span>${escapeHtml(row.year ?? "unknown year")}</span>
           </span>
           <span class="tags">
             ${row.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
@@ -230,28 +265,38 @@ export const renderSearchApp = ({ rows, stats }) => `
   <section class="search-app" aria-label="Worker search demo">
     <div class="toolbar">
       <label>
-        <span class="label-text">Search ${escapeHtml(stats.records)} generated records</span>
+        <span class="label-text">Search ${escapeHtml(stats.records.toLocaleString())} real meteorites</span>
         <input
           data-search-input
           type="search"
           name="query"
-          placeholder="Try worker, edge, Oslo..."
+          placeholder="Try Hoba, lunar, iron, Antarctica..."
           autocomplete="off"
           spellcheck="false"
         />
       </label>
+      <label>
+        <span class="label-text">Sort</span>
+        <select data-sort-select name="sort">
+          <option value="relevance">Relevance</option>
+          <option value="mass" selected>Mass</option>
+          <option value="year">Year</option>
+          <option value="name">Name</option>
+          <option value="class">Class</option>
+        </select>
+      </label>
       <div class="stats" aria-label="Dataset summary">
         <span class="stat">
-          <strong>${escapeHtml(stats.records)}</strong>
+          <strong>${escapeHtml(stats.records.toLocaleString())}</strong>
           <span>records</span>
         </span>
         <span class="stat">
           <strong>${escapeHtml(stats.categories)}</strong>
-          <span>domains</span>
+          <span>classes</span>
         </span>
         <span class="stat">
           <strong>${escapeHtml(stats.regions)}</strong>
-          <span>regions</span>
+          <span>hemispheres</span>
         </span>
       </div>
     </div>

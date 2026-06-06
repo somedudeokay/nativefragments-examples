@@ -10,6 +10,7 @@
     "check": "node scripts/run-each.mjs check",
     "deploy": "node scripts/run-each.mjs deploy",
     "test": "node scripts/run-each.mjs test",
+    "update-worker-search-data": "node scripts/update-worker-search-data.mjs",
     "update-screenshots": "node scripts/update-screenshots.mjs"
   }
 }

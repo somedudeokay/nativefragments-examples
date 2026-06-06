@@ -28,3 +28,9 @@ npm run update-screenshots
 The script writes efficient WebP screenshots to `screenshots/`. When the sibling
 `../nativefragments.org` checkout is present, it also mirrors them into
 `../nativefragments.org/public/app/screenshots/`.
+
+Refresh the Worker Search meteorite dataset from NASA Open Data:
+
+```sh
+npm run update-worker-search-data
+```

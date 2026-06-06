@@ -10,6 +10,7 @@ test("home route server-renders the worker search custom element", () => {
   assert.match(html, /<template shadowrootmode="open">/);
   assert.match(html, /data-search-state/);
   assert.match(html, /Server rendered 12 rows before JavaScript/);
+  assert.match(html, /Search 45,716 real meteorites/);
   assert.match(html, /\/nativefragments\/worker\.js RPC/);
 });
 

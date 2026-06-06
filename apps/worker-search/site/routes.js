@@ -8,23 +8,21 @@ import {
 
 const origin = "https://worker-search.nativefragments.org";
 const description =
-  "A Native Fragments demo that filters a large dataset in a browser Worker through the built-in worker RPC helper.";
+  "A Native Fragments demo that filters and sorts NASA meteorite landing data in a browser Worker through the built-in worker RPC helper.";
 
 export const renderHome = () => {
   const stats = searchStats();
   const rows = visibleRows({ limit: 12 });
-  const state = serializeSearchState({
-    rows: searchPayload(),
-    stats,
-  });
+  const state = serializeSearchState(searchPayload());
 
   return html`
     <section class="hero">
       <p class="eyebrow">Native Fragments Worker RPC</p>
       <h1>Large-list search without a UI framework.</h1>
       <p>
-        This Cloudflare Worker serves a zero-build app. The first results render
-        on the server, then filtering moves to a dedicated browser Worker.
+        This Cloudflare Worker serves 45,000+ real NASA meteorite records. The
+        heaviest landings render on the server, then search and sorting move to
+        a dedicated browser Worker.
       </p>
     </section>
 

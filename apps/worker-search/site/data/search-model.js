@@ -1,19 +1,15 @@
-import { records } from "./records.js";
-import { filterRows } from "../../public/app/search-core.js";
+import { dataUrl, initialRows, stats } from "./records.js";
 
 export const filterRecords = ({
-  rows = records,
-  query = "",
   limit = 24,
-} = {}) => filterRows({ rows, query, limit }).results;
+} = {}) => initialRows.slice(0, limit);
 
-export const visibleRows = ({ query = "", limit = 24 } = {}) =>
-  filterRecords({ query, limit });
+export const visibleRows = ({ limit = 24 } = {}) => filterRecords({ limit });
 
-export const searchStats = () => ({
-  categories: new Set(records.map((record) => record.category)).size,
-  records: records.length,
-  regions: new Set(records.map((record) => record.region)).size,
+export const searchStats = () => stats;
+
+export const searchPayload = () => ({
+  dataUrl,
+  initialRows,
+  stats,
 });
-
-export const searchPayload = () => records;
