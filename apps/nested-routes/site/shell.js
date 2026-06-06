@@ -4,7 +4,7 @@ const head = ({ meta }) => html`
   <title>${meta.title}</title>
   <meta name="description" content="${meta.description}" />
   <link rel="canonical" href="${meta.canonical}" />
-  <meta name="theme-color" content="#f5f7fb" />
+  <meta name="theme-color" content="#f4f1ea" />
   <link rel="stylesheet" href="/app/styles.css" />
   <script>
     document.documentElement.classList.add("js");
