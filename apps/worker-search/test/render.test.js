@@ -9,9 +9,11 @@ test("home route server-renders the worker search custom element", () => {
   assert.match(html, /<worker-search-app>/);
   assert.match(html, /<template shadowrootmode="open">/);
   assert.match(html, /data-search-state/);
-  assert.match(html, /Server rendered 12 rows before JavaScript/);
+  assert.match(html, /Server rendered <b>12<\/b> rows before JavaScript/);
   assert.match(html, /Search 45,716 real meteorites/);
   assert.match(html, /\/nativefragments\/worker\.js RPC/);
+  assert.match(html, /<table data-search-table>/);
+  assert.match(html, /data-sort-col="mass"/);
 });
 
 test("cloudflare handler returns a complete document", async () => {

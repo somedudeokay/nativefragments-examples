@@ -17,19 +17,25 @@ export const renderHome = () => {
 
   return html`
     <section class="hero">
-      <p class="eyebrow">Native Fragments Worker RPC</p>
-      <h1>Large-list search without a UI framework.</h1>
-      <p>
-        This Cloudflare Worker serves 45,000+ real NASA meteorite records. The
-        heaviest landings render on the server, then search and sorting move to
-        a dedicated browser Worker.
-      </p>
+      <div>
+        <p class="eyebrow">NASA Meteorite Landings · Worker RPC</p>
+        <h1>A 45,000-row catalog you can search instantly.</h1>
+        <p>
+          The server streams the heaviest landings first; every keystroke after
+          that is filtered and sorted off the main thread in a dedicated browser
+          Web Worker — no UI framework, no blocked paint.
+        </p>
+      </div>
+      <div class="hero-meta">
+        <span class="figure">${raw(stats.records.toLocaleString())}</span>
+        <span class="figure-label">records · ${raw(String(stats.categories))} classes</span>
+      </div>
     </section>
 
     <worker-search-app>
       ${declarativeShadow({
         styles: [workerSearchStyles],
-        html: renderSearchApp({ rows, stats }),
+        html: renderSearchApp({ rows, stats, sort: "mass" }),
       })}
       <script type="application/json" data-search-state>${raw(state)}</script>
     </worker-search-app>

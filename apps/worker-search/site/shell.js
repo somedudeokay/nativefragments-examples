@@ -3,11 +3,19 @@ import { html, raw } from "@nativefragments/core/server";
 const criticalStyles = `
   :root {
     color-scheme: light;
-    font-family:
-      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", sans-serif;
-    background: #f7f5ef;
-    color: #161615;
+    --bg: #f4f1e8;
+    --ink: #1a1813;
+    --muted: #6b6453;
+    --line: #e6e0d2;
+    --line-strong: #d9d3c4;
+    --surface: #fbf9f3;
+    --accent: #b14d1f;
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
   }
 
   * {
@@ -23,74 +31,147 @@ const criticalStyles = `
     color: inherit;
   }
 
+  ::selection {
+    background: #1a1813;
+    color: #f4f1e8;
+  }
+
   .site-shell {
+    display: flex;
+    flex-direction: column;
     min-height: 100svh;
   }
 
   .site-header {
-    align-items: center;
-    border-bottom: 1px solid rgba(22, 22, 21, 0.12);
+    align-items: baseline;
+    border-bottom: 1px solid var(--line-strong);
     display: flex;
+    gap: 16px;
     justify-content: space-between;
-    padding: 18px clamp(18px, 4vw, 56px);
+    padding: 14px clamp(18px, 4vw, 48px);
   }
 
   .brand {
-    font-size: 0.84rem;
-    font-weight: 780;
-    letter-spacing: 0;
+    align-items: baseline;
+    display: flex;
+    gap: 9px;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-decoration: none;
+    text-transform: uppercase;
   }
 
-  .site-header span {
-    color: #69645b;
-    font-size: 0.78rem;
+  .brand .dot {
+    background: var(--accent);
+    border-radius: 50%;
+    height: 7px;
+    width: 7px;
+    align-self: center;
+  }
+
+  .brand .sep {
+    color: var(--line-strong);
+  }
+
+  .brand .app {
+    color: var(--muted);
+  }
+
+  .site-header > span {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   main {
-    padding: clamp(26px, 5vw, 72px) clamp(18px, 4vw, 56px) 64px;
+    flex: 1;
+    padding: clamp(22px, 3.5vw, 40px) clamp(18px, 4vw, 48px) clamp(40px, 6vw, 72px);
   }
 
   .hero {
+    align-items: end;
+    border-bottom: 1px solid var(--line-strong);
     display: grid;
-    gap: 16px;
-    margin: 0 auto clamp(28px, 4vw, 48px);
-    max-width: 1120px;
+    gap: 14px clamp(24px, 5vw, 64px);
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin: 0 auto clamp(20px, 3vw, 32px);
+    max-width: 1180px;
+    padding-bottom: clamp(18px, 2.5vw, 26px);
   }
 
   .eyebrow {
-    color: #6f3d16;
-    font-size: 0.78rem;
-    font-weight: 760;
-    margin: 0;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    margin: 0 0 10px;
     text-transform: uppercase;
   }
 
   h1 {
-    font-size: clamp(2.5rem, 8vw, 6.4rem);
-    letter-spacing: 0;
-    line-height: 0.9;
+    font-family: var(--serif);
+    font-size: clamp(1.9rem, 4.2vw, 3.1rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
     margin: 0;
-    max-width: 980px;
+    max-width: 16ch;
   }
 
-  .hero p:last-child {
-    color: #504c44;
-    font-size: clamp(1rem, 1.5vw, 1.25rem);
-    line-height: 1.55;
-    margin: 0;
-    max-width: 720px;
+  .hero p {
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.5;
+    margin: 12px 0 0;
+    max-width: 62ch;
   }
 
-  @media (max-width: 720px) {
-    .site-header {
-      align-items: flex-start;
-      gap: 8px;
-      flex-direction: column;
+  .hero-meta {
+    align-items: baseline;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: right;
+  }
+
+  .hero-meta .figure {
+    font-family: var(--mono);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .hero-meta .figure-label {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      align-items: start;
+      grid-template-columns: 1fr;
     }
 
-    main {
-      padding-top: 30px;
+    .hero-meta {
+      align-items: baseline;
+      flex-direction: row;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .hero-meta .figure {
+      font-size: 1.5rem;
     }
   }
 `;
@@ -124,8 +205,13 @@ export const shell = ({ body, meta }) => html`<!doctype html>
   <body>
     <div class="site-shell">
       <header class="site-header">
-        <a class="brand" href="/">Native Fragments / Worker Search</a>
-        <span>Cloudflare Worker demo</span>
+        <a class="brand" href="/">
+          <span class="dot" aria-hidden="true"></span>
+          Native Fragments
+          <span class="sep">/</span>
+          <span class="app">Worker Search</span>
+        </a>
+        <span>Cloudflare Worker · Web Worker RPC</span>
       </header>
       <main id="content-slot">${raw(body)}</main>
     </div>

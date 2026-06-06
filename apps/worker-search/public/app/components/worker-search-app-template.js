@@ -6,309 +6,510 @@ const escapeHtml = (value) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+const SORT_OPTIONS = [
+  ["mass", "Mass"],
+  ["year", "Year"],
+  ["name", "Name"],
+  ["class", "Class"],
+  ["relevance", "Relevance"],
+];
+
+// Maps a clickable column header to the sort key it controls.
+const COLUMNS = [
+  { key: "name", label: "Specimen", sort: "name", align: "start" },
+  { key: "class", label: "Class", sort: "class", align: "start" },
+  { key: "mass", label: "Mass", sort: "mass", align: "end", num: true },
+  { key: "year", label: "Year", sort: "year", align: "end", num: true },
+  { key: "coords", label: "Location", sort: null, align: "start" },
+];
+
 export const workerSearchStyles = `
   :host {
     display: block;
   }
 
-  .search-app {
-    background: #fffdf7;
-    border: 1px solid rgba(22, 22, 21, 0.14);
-    border-radius: 8px;
-    box-shadow: 0 24px 70px rgba(50, 45, 35, 0.10);
-    color: #171612;
+  .panel {
+    background: var(--surface, #fbf9f3);
+    border: 1px solid var(--line-strong, #d9d3c4);
+    border-radius: 4px;
+    color: #1a1813;
     margin: 0 auto;
-    max-width: 1120px;
+    max-width: 1180px;
     overflow: clip;
   }
 
   .toolbar {
-    align-items: end;
-    border-bottom: 1px solid rgba(22, 22, 21, 0.1);
+    align-items: stretch;
     display: grid;
-    gap: 18px;
-    grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.35fr) auto;
-    padding: clamp(18px, 3vw, 30px);
+    gap: 0;
+    grid-template-columns: 1fr auto;
+    border-bottom: 1px solid var(--line-strong, #d9d3c4);
   }
 
-  label {
+  .field-search {
+    align-items: center;
     display: grid;
-    gap: 8px;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 0 18px;
     min-width: 0;
   }
 
-  .label-text {
-    color: #595348;
-    font-size: 0.78rem;
-    font-weight: 740;
-    text-transform: uppercase;
+  .field-search svg {
+    color: #8a8270;
+    flex: none;
+    height: 18px;
+    width: 18px;
   }
 
-  input,
-  select {
+  input[type="search"] {
     appearance: none;
-    background: #f4f1e8;
-    border: 1px solid rgba(22, 22, 21, 0.18);
-    border-radius: 7px;
-    color: #171612;
+    background: transparent;
+    border: 0;
+    color: #1a1813;
     font: inherit;
-    font-size: clamp(1.15rem, 2.2vw, 1.7rem);
-    font-weight: 720;
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
     min-width: 0;
     outline: none;
-    padding: 15px 16px;
+    padding: 18px 0;
     width: 100%;
   }
 
-  select {
-    background-image:
-      linear-gradient(45deg, transparent 50%, #171612 50%),
-      linear-gradient(135deg, #171612 50%, transparent 50%);
-    background-position:
-      calc(100% - 18px) 50%,
-      calc(100% - 12px) 50%;
-    background-repeat: no-repeat;
-    background-size: 6px 6px;
-    padding-right: 34px;
+  input[type="search"]::placeholder {
+    color: #9a9180;
+    font-weight: 400;
   }
 
-  input:focus,
-  select:focus {
-    border-color: #9e4f12;
-    box-shadow: 0 0 0 4px rgba(158, 79, 18, 0.14);
+  input[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
   }
 
-  .stats {
-    display: grid;
-    gap: 8px;
-    grid-template-columns: repeat(3, minmax(92px, 1fr));
+  .field-sort {
+    align-items: center;
+    border-left: 1px solid var(--line, #e6e0d2);
+    display: flex;
+    gap: 10px;
+    padding: 0 16px 0 18px;
   }
 
-  .stat {
-    border-left: 1px solid rgba(22, 22, 21, 0.14);
-    padding-left: 15px;
+  .field-sort .label-text {
+    color: #8a8270;
+    flex: none;
   }
 
-  .stat strong {
-    display: block;
-    font-size: 1.18rem;
-  }
-
-  .stat span {
-    color: #6d675e;
-    display: block;
-    font-size: 0.74rem;
-    margin-top: 2px;
+  .label-text {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
   }
 
-  .meta {
+  select {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: #1a1813;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    outline: none;
+    padding: 18px 22px 18px 0;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #1a1813 50%),
+      linear-gradient(135deg, #1a1813 50%, transparent 50%);
+    background-position:
+      calc(100% - 8px) calc(50% + 1px),
+      calc(100% - 3px) calc(50% + 1px);
+    background-repeat: no-repeat;
+    background-size: 5px 5px;
+  }
+
+  input[type="search"]:focus-visible,
+  .field-search:focus-within {
+    outline: none;
+  }
+
+  .field-search:focus-within {
+    box-shadow: inset 0 -2px 0 var(--accent, #b14d1f);
+  }
+
+  select:focus-visible {
+    box-shadow: inset 0 -2px 0 var(--accent, #b14d1f);
+  }
+
+  .statusbar {
     align-items: center;
-    background: #1b1a17;
-    color: #f7f0e3;
+    background: #16140f;
+    color: #f4ede0;
     display: flex;
-    font-size: 0.84rem;
+    flex-wrap: wrap;
+    gap: 6px 18px;
     justify-content: space-between;
-    min-height: 44px;
-    padding: 10px clamp(18px, 3vw, 30px);
+    padding: 9px 18px;
   }
 
-  .meta code {
-    background: rgba(255, 255, 255, 0.09);
-    border-radius: 5px;
-    color: #f2c17b;
-    font-family: "SFMono-Regular", Consolas, monospace;
-    font-size: 0.78rem;
-    padding: 3px 6px;
+  .statusbar .status-text {
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
   }
 
-  .results {
-    display: grid;
+  .statusbar .status-text b {
+    color: #f0b46a;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
   }
 
-  .row {
+  .statusbar code {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    color: #e7c79a;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+
+  table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .cg-name { width: 30%; }
+  .cg-class { width: 20%; }
+  .cg-mass { width: 14%; }
+  .cg-year { width: 11%; }
+  .cg-coords { width: 25%; }
+
+  thead th {
+    background: #f2eee2;
+    border-bottom: 1px solid var(--line-strong, #d9d3c4);
+    color: #6b6453;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    padding: 0;
+    text-align: start;
+    text-transform: uppercase;
+  }
+
+  thead th.num {
+    text-align: end;
+  }
+
+  thead th button {
     align-items: center;
-    border-bottom: 1px solid rgba(22, 22, 21, 0.09);
-    display: grid;
-    gap: 18px;
-    grid-template-columns: minmax(130px, 0.45fr) minmax(220px, 1.4fr) minmax(115px, 0.42fr) auto;
-    min-height: 82px;
-    padding: 16px clamp(18px, 3vw, 30px);
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    gap: 5px;
+    letter-spacing: inherit;
+    padding: 11px 16px;
+    text-transform: inherit;
+    width: 100%;
   }
 
-  .row:last-child {
+  thead th.num button {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+  }
+
+  thead th button:hover {
+    color: #1a1813;
+  }
+
+  thead th button .arrow {
+    color: var(--accent, #b14d1f);
+    flex: none;
+    height: 9px;
+    opacity: 0;
+    width: 9px;
+  }
+
+  thead th[aria-sort] button .arrow {
+    opacity: 1;
+  }
+
+  thead th[aria-sort] button {
+    color: #1a1813;
+  }
+
+  thead th[aria-sort="ascending"] button .arrow {
+    transform: rotate(180deg);
+  }
+
+  thead th.static {
+    color: #9a9180;
+    padding: 11px 16px;
+  }
+
+  thead th:focus-visible button,
+  thead th button:focus-visible {
+    outline: 2px solid var(--accent, #b14d1f);
+    outline-offset: -2px;
+  }
+
+  tbody td {
+    border-bottom: 1px solid var(--line, #ece6d8);
+    padding: 11px 16px;
+    vertical-align: baseline;
+  }
+
+  tbody tr:last-child td {
     border-bottom: 0;
   }
 
-  .id {
-    color: #7b7469;
-    font-family: "SFMono-Regular", Consolas, monospace;
-    font-size: 0.78rem;
+  tbody tr:hover td {
+    background: #f6f2e7;
   }
 
-  .mass {
-    display: grid;
-    gap: 3px;
-    justify-items: start;
+  .c-name {
+    font-size: 0.96rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .mass strong {
-    font-family: "SFMono-Regular", Consolas, monospace;
-    font-size: 0.94rem;
-  }
-
-  .mass span {
-    color: #665f54;
-    font-size: 0.76rem;
+  .c-name .fall {
+    color: #9a9180;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-left: 8px;
     text-transform: uppercase;
+    vertical-align: 1px;
   }
 
-  .title {
-    display: grid;
-    gap: 5px;
-    min-width: 0;
+  .c-class {
+    color: #4d4636;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .title strong {
-    font-size: 1.02rem;
-    overflow-wrap: anywhere;
+  .c-num {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+    white-space: nowrap;
   }
 
-  .title span {
-    color: #665f54;
-    font-size: 0.88rem;
-    overflow-wrap: anywhere;
+  .c-num .unit {
+    color: #9a9180;
+    font-size: 0.78em;
   }
 
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: end;
+  .c-num.muted {
+    color: #b3aa97;
   }
 
-  .tags span {
-    background: #ece6d9;
-    border-radius: 999px;
-    color: #4d463b;
-    font-size: 0.74rem;
-    font-weight: 690;
-    padding: 5px 8px;
+  .c-coords {
+    color: #5c5544;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .c-coords .region {
+    color: #a59b87;
   }
 
   .empty {
-    color: #655d51;
-    padding: 34px clamp(18px, 3vw, 30px);
+    color: #5c5544;
+    display: grid;
+    gap: 6px;
+    padding: 56px 18px;
+    text-align: center;
   }
 
-  @media (max-width: 780px) {
+  .empty strong {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .empty span {
+    color: #8a8270;
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 760px) {
     .toolbar {
-      align-items: stretch;
       grid-template-columns: 1fr;
     }
 
-    .stats {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .stat:first-child {
+    .field-sort {
       border-left: 0;
-      padding-left: 0;
+      border-top: 1px solid var(--line, #e6e0d2);
+      padding: 0 18px;
     }
 
-    .meta {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 6px;
+    .field-sort .label-text {
+      flex: 1;
     }
 
-    .row {
-      align-items: start;
-      grid-template-columns: 1fr;
-      gap: 10px;
+    select {
+      padding-block: 14px;
     }
 
-    .tags {
-      justify-content: start;
+    .cg-name { width: 50%; }
+    .cg-class { width: 28%; }
+    .cg-mass { width: 22%; }
+    .cg-year,
+    .cg-coords { width: 0; }
+
+    .col-year,
+    .col-coords {
+      display: none;
+    }
+
+    .c-name {
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .cg-name { width: auto; }
+    .cg-mass { width: 30%; }
+    .cg-class { width: 0; }
+
+    .col-class {
+      display: none;
+    }
+
+    .c-name .fall {
+      display: none;
     }
   }
 `;
 
+const formatMass = (mass) => {
+  if (mass == null) return `<span class="c-num muted">—</span>`;
+  if (mass >= 1_000_000) {
+    return `${(mass / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 })}<span class="unit"> t</span>`;
+  }
+  if (mass >= 1000) {
+    return `${(mass / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}<span class="unit"> kg</span>`;
+  }
+  return `${Math.round(mass).toLocaleString()}<span class="unit"> g</span>`;
+};
+
+const formatCoords = (row) => {
+  if (row.lat == null || row.lon == null) {
+    return `<span class="region">${escapeHtml(row.region ?? "unknown")}</span>`;
+  }
+  const lat = `${Math.abs(row.lat).toFixed(2)}°${row.lat >= 0 ? "N" : "S"}`;
+  const lon = `${Math.abs(row.lon).toFixed(2)}°${row.lon >= 0 ? "E" : "W"}`;
+  return `${lat}, ${lon}`;
+};
+
 export const renderRows = (rows) => {
   if (!rows.length) {
-    return `<p class="empty">No matching meteorites. Try Hoba, lunar, iron, Antarctica, 1880, or tonne-class.</p>`;
+    return `
+      <tr>
+        <td colspan="5">
+          <div class="empty">
+            <strong>No meteorites match that query.</strong>
+            <span>Try Hoba, lunar, iron, Antarctica, 1880, or tonne-class.</span>
+          </div>
+        </td>
+      </tr>`;
   }
 
   return rows
     .map(
       (row) => `
-        <article class="row">
-          <span class="id">${escapeHtml(row.id)}</span>
-          <span class="title">
-            <strong>${escapeHtml(row.title)}</strong>
-            <span>${escapeHtml(row.summary)}</span>
-          </span>
-          <span class="mass">
-            <strong>${escapeHtml(row.mass == null ? "unknown" : `${Math.round(row.mass).toLocaleString()} g`)}</strong>
-            <span>${escapeHtml(row.year ?? "unknown year")}</span>
-          </span>
-          <span class="tags">
-            ${row.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
-          </span>
-        </article>
+        <tr>
+          <td class="col-name">
+            <div class="c-name">${escapeHtml(row.name)}<span class="fall">${escapeHtml(row.fall ?? "")}</span></div>
+          </td>
+          <td class="col-class"><div class="c-class">${escapeHtml(row.recclass ?? "—")}</div></td>
+          <td class="col-mass"><div class="c-num">${formatMass(row.mass)}</div></td>
+          <td class="col-year"><div class="c-num${row.year == null ? " muted" : ""}">${escapeHtml(row.year ?? "—")}</div></td>
+          <td class="col-coords"><div class="c-coords">${formatCoords(row)}</div></td>
+        </tr>
       `,
     )
     .join("");
 };
 
-export const renderSearchApp = ({ rows, stats }) => `
-  <section class="search-app" aria-label="Worker search demo">
+const arrowSvg = `<svg class="arrow" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 2.5v7M3 6.5L6 9.5 9 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const renderHead = (sort) =>
+  COLUMNS.map((col) => {
+    const cls = col.num ? "num" : "";
+    const colClass = `col-${col.key}`;
+    if (!col.sort) {
+      return `<th class="static ${colClass}">${escapeHtml(col.label)}</th>`;
+    }
+    const active = col.sort === sort;
+    const ariaSort = active ? ` aria-sort="descending"` : "";
+    return `<th class="${cls} ${colClass}"${ariaSort}><button type="button" data-sort-col="${col.sort}">${escapeHtml(col.label)}${arrowSvg}</button></th>`;
+  }).join("");
+
+export const renderSearchApp = ({ rows, stats, sort = "mass", query = "" }) => `
+  <section class="panel" aria-label="Meteorite catalog search">
     <div class="toolbar">
-      <label>
-        <span class="label-text">Search ${escapeHtml(stats.records.toLocaleString())} real meteorites</span>
+      <div class="field-search">
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/><path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <input
           data-search-input
           type="search"
           name="query"
-          placeholder="Try Hoba, lunar, iron, Antarctica..."
+          value="${escapeHtml(query)}"
+          placeholder="Search ${escapeHtml(stats.records.toLocaleString())} NASA meteorite records…"
+          aria-label="Search ${escapeHtml(stats.records.toLocaleString())} real meteorites"
           autocomplete="off"
           spellcheck="false"
         />
-      </label>
-      <label>
-        <span class="label-text">Sort</span>
-        <select data-sort-select name="sort">
-          <option value="relevance">Relevance</option>
-          <option value="mass" selected>Mass</option>
-          <option value="year">Year</option>
-          <option value="name">Name</option>
-          <option value="class">Class</option>
+      </div>
+      <div class="field-sort">
+        <span class="label-text" id="sort-label">Sort</span>
+        <select data-sort-select name="sort" aria-labelledby="sort-label">
+          ${SORT_OPTIONS.map(([value, label]) => `<option value="${value}"${value === sort ? " selected" : ""}>${escapeHtml(label)}</option>`).join("")}
         </select>
-      </label>
-      <div class="stats" aria-label="Dataset summary">
-        <span class="stat">
-          <strong>${escapeHtml(stats.records.toLocaleString())}</strong>
-          <span>records</span>
-        </span>
-        <span class="stat">
-          <strong>${escapeHtml(stats.categories)}</strong>
-          <span>classes</span>
-        </span>
-        <span class="stat">
-          <strong>${escapeHtml(stats.regions)}</strong>
-          <span>hemispheres</span>
-        </span>
       </div>
     </div>
-    <div class="meta">
-      <span data-search-status>Server rendered ${escapeHtml(rows.length)} rows before JavaScript.</span>
+    <div class="statusbar">
+      <span class="status-text" data-search-status>Server rendered <b>${escapeHtml(rows.length)}</b> rows before JavaScript.</span>
       <code>/nativefragments/worker.js RPC</code>
     </div>
-    <div class="results" data-search-results aria-live="polite">
-      ${renderRows(rows)}
-    </div>
+    <table data-search-table>
+      <colgroup>
+        <col class="cg-name" />
+        <col class="cg-class" />
+        <col class="cg-mass" />
+        <col class="cg-year" />
+        <col class="cg-coords" />
+      </colgroup>
+      <thead data-search-head>
+        <tr>${renderHead(sort)}</tr>
+      </thead>
+      <tbody data-search-results aria-live="polite">
+        ${renderRows(rows)}
+      </tbody>
+    </table>
   </section>
 `;
+
+export { renderHead };
 
 export const serializeSearchState = (state) =>
   JSON.stringify(state).replace(/</g, "\\u003c");
