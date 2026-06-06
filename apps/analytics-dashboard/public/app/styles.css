@@ -1,0 +1,257 @@
+:root {
+  color: #171511;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(23, 21, 17, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(23, 21, 17, 0.04) 1px, transparent 1px),
+    #eee6d7;
+  background-size: 44px 44px;
+  margin: 0;
+  min-height: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+.skip-link {
+  background: #171511;
+  border-radius: 0 0 8px 0;
+  color: #fffaf1;
+  left: 0;
+  padding: 0.75rem 1rem;
+  position: fixed;
+  top: 0;
+  transform: translateY(-120%);
+  z-index: 20;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 286px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #171511;
+  border-right: 1px solid #302b22;
+  color: #fffaf1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100vh;
+  padding: 24px;
+  position: sticky;
+  top: 0;
+}
+
+.brand {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 38px 1fr;
+  text-decoration: none;
+}
+
+.brand-mark {
+  background: #d0a349;
+  border: 1px solid #f3d897;
+  border-radius: 8px;
+  display: block;
+  height: 38px;
+  position: relative;
+}
+
+.brand-mark::before,
+.brand-mark::after {
+  background: #171511;
+  content: "";
+  position: absolute;
+}
+
+.brand-mark::before {
+  height: 18px;
+  left: 11px;
+  top: 9px;
+  width: 4px;
+}
+
+.brand-mark::after {
+  height: 4px;
+  right: 9px;
+  top: 16px;
+  width: 13px;
+}
+
+.brand span:last-child {
+  display: grid;
+  font-weight: 780;
+  gap: 3px;
+}
+
+.brand small {
+  color: #a79d8c;
+  font-size: 0.76rem;
+  font-weight: 560;
+}
+
+.section-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.section-link {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #d9d0c0;
+  display: grid;
+  font-weight: 720;
+  gap: 4px;
+  min-height: 58px;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.section-link span {
+  color: #8b806e;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.section-link:hover,
+.section-link:focus-visible,
+.section-link[aria-current="page"] {
+  background: #252119;
+  border-color: #4b4234;
+  color: #fffaf1;
+  outline: 0;
+}
+
+.section-link[aria-current="page"] span {
+  color: #d0a349;
+}
+
+.sidebar-note {
+  border: 1px solid #41392d;
+  border-radius: 8px;
+  color: #bfb4a3;
+  display: grid;
+  gap: 8px;
+  line-height: 1.55;
+  margin-top: auto;
+  padding: 14px;
+}
+
+.sidebar-note strong {
+  color: #fffaf1;
+}
+
+.workspace {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.workspace-top {
+  align-items: end;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  color: #716957;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  font-weight: 760;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.workspace-top h1 {
+  color: #171511;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  font-size: 2.1rem;
+  font-weight: 760;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+  max-width: 760px;
+}
+
+.source-link {
+  background: #fffaf1;
+  border: 1px solid #d8cfc0;
+  border-radius: 8px;
+  color: #171511;
+  flex: none;
+  font-weight: 740;
+  padding: 0.75rem 0.95rem;
+  text-decoration: none;
+}
+
+.source-link:hover,
+.source-link:focus-visible {
+  border-color: #171511;
+  outline: 0;
+}
+
+.dashboard-panel {
+  display: block;
+}
+
+@media (max-width: 980px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    min-height: 0;
+    position: static;
+  }
+
+  .section-nav {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sidebar-note {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .sidebar,
+  .workspace {
+    padding: 16px;
+  }
+
+  .section-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-top {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .workspace-top h1 {
+    font-size: 1.62rem;
+  }
+}

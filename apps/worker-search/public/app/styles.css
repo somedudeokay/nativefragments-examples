@@ -1,0 +1,18 @@
+::selection {
+  background: #1b1a17;
+  color: #fff7e6;
+}
+
+.js worker-search-app {
+  min-height: 520px;
+}
+
+worker-search-app {
+  display: block;
+}
+
+@media (max-width: 780px) {
+  .js worker-search-app {
+    min-height: 760px;
+  }
+}

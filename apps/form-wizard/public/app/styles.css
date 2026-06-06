@@ -1,0 +1,164 @@
+:root {
+  --paper: #f5d7e3;
+  --surface: #fffdf6;
+  --ink: #141414;
+  --muted: #665c61;
+  --green: #1ed760;
+  --line: rgba(20, 20, 20, 0.15);
+  --pad: clamp(1.25rem, 5vw, 3rem);
+  color-scheme: light;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+.hero,
+.wizard {
+  padding-inline: max(var(--pad), calc((100vw - 1080px) / 2));
+}
+
+.hero {
+  padding-block: clamp(3rem, 8vw, 6rem) 2rem;
+}
+
+.eyebrow {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  max-width: 10ch;
+}
+
+.hero p:last-child {
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1.55;
+  max-width: 56ch;
+}
+
+.wizard {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  padding-bottom: 5rem;
+}
+
+.step-nav {
+  background: var(--ink);
+  color: var(--surface);
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+}
+
+.step-nav a {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  display: block;
+  padding: 1rem;
+  text-decoration: none;
+}
+
+.step-nav .active a {
+  color: var(--green);
+}
+
+article {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: clamp(1.4rem, 4vw, 3rem);
+}
+
+.meter {
+  background: rgba(20, 20, 20, 0.08);
+  height: 0.55rem;
+  margin-bottom: 1.5rem;
+}
+
+.meter span {
+  background: var(--green);
+  display: block;
+  height: 100%;
+  width: var(--progress);
+}
+
+form,
+.review {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+label {
+  color: var(--muted);
+  display: grid;
+  font-weight: 700;
+  gap: 0.45rem;
+}
+
+input {
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: inherit;
+  padding: 0.9rem 1rem;
+}
+
+button {
+  background: var(--ink);
+  border: 0;
+  color: var(--surface);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  justify-self: start;
+  padding: 0.85rem 1.1rem;
+}
+
+.review div {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.3rem;
+  padding-top: 1rem;
+}
+
+dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+dd {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .wizard {
+    grid-template-columns: 1fr;
+  }
+}

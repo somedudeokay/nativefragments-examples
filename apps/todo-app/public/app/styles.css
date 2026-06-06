@@ -1,0 +1,45 @@
+:root {
+  --paper: #f6f0df;
+  --paper-deep: #e7dbc4;
+  --ink: #151515;
+  --ink-soft: #45413a;
+  --line: rgba(21, 21, 21, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(21, 21, 21, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(21, 21, 21, 0.03) 1px, transparent 1px),
+    var(--paper);
+  background-size: 44px 44px;
+  color: var(--ink);
+  font-family: "Avenir Next", "Gill Sans", ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.5;
+  margin: 0;
+  min-height: 100vh;
+}
+
+main {
+  margin: 0 auto;
+  max-width: 1180px;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+todo-app {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  main {
+    padding: 18px 12px;
+  }
+}

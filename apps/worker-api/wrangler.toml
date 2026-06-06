@@ -1,0 +1,10 @@
+name = "nativefragments-demo-worker-api"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+routes = [
+  { pattern = "worker-api.nativefragments.org", custom_domain = true }
+]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"

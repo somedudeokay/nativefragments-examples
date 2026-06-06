@@ -1,0 +1,189 @@
+:root {
+  --bg: #f4efe2;
+  --bg-strong: #fffaf0;
+  --ink: #171714;
+  --muted: #646057;
+  --line: rgba(23, 23, 20, 0.14);
+  --green: #1f8f5f;
+  --amber: #d97706;
+  --blue: #2f6fb7;
+  --red: #b73535;
+  --shadow: 0 24px 70px rgba(23, 23, 20, 0.16);
+  --sans: "Avenir Next", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --serif: Charter, "Bitstream Charter", "Sitka Text", Georgia, serif;
+  --mono: "SFMono-Regular", "Cascadia Code", Consolas, ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(23, 23, 20, 0.045) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgba(23, 23, 20, 0.04) 1px, transparent 1px) 0 0 / 48px 48px,
+    radial-gradient(circle at 80% 12%, rgba(47, 111, 183, 0.16), transparent 32rem),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  margin: 0;
+  min-height: 100%;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  align-items: center;
+  display: grid;
+  gap: clamp(2rem, 6vw, 5rem);
+  grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+  min-height: min(760px, 100svh);
+  padding: clamp(2rem, 5vw, 5.5rem);
+}
+
+.intro {
+  max-width: 42rem;
+}
+
+.eyebrow {
+  border-bottom: 1px solid var(--line);
+  color: var(--green);
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 1.35rem;
+  padding-bottom: 0.34rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(3rem, 8.5vw, 7.75rem);
+  font-weight: 650;
+  line-height: 0.9;
+  margin: 0;
+  max-width: 9ch;
+}
+
+.lede {
+  color: var(--muted);
+  font-size: clamp(1rem, 1.75vw, 1.25rem);
+  line-height: 1.65;
+  margin: 1.5rem 0 0;
+  max-width: 38rem;
+}
+
+.facts {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: clamp(2rem, 5vw, 4rem) 0 0;
+  max-width: 38rem;
+}
+
+.facts div {
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+  padding: 1rem 0.85rem 1rem 0;
+}
+
+.facts dt {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.facts dd {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0.36rem 0 0;
+}
+
+.demo-stage {
+  position: relative;
+}
+
+.demo-stage::before {
+  background:
+    linear-gradient(135deg, transparent 0 44%, rgba(23, 23, 20, 0.16) 44% 45%, transparent 45%),
+    linear-gradient(45deg, transparent 0 47%, rgba(31, 143, 95, 0.24) 47% 48%, transparent 48%);
+  border: 1px solid var(--line);
+  content: "";
+  inset: -1.1rem;
+  pointer-events: none;
+  position: absolute;
+  transform: rotate(-1.5deg);
+  z-index: -1;
+}
+
+.notes {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0 clamp(2rem, 5vw, 5.5rem) clamp(2rem, 5vw, 5.5rem);
+}
+
+.notes article {
+  background: rgba(255, 250, 240, 0.58);
+  min-width: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.notes h2 {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.85rem;
+  text-transform: uppercase;
+}
+
+.notes p {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 48rem;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  h1 {
+    max-width: 11ch;
+  }
+
+  .notes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell,
+  .notes {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-stage::before {
+    inset: -0.6rem;
+  }
+}

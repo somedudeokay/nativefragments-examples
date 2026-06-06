@@ -1,0 +1,10 @@
+name = "nativefragments-analytics-dashboard"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+routes = [
+  { pattern = "analytics-dashboard.nativefragments.org", custom_domain = true }
+]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"

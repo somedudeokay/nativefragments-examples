@@ -1,0 +1,18 @@
+{
+  "name": "@nativefragments/demo-worker-search",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check worker.js && find site public/app test -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "deploy": "npx wrangler deploy",
+    "dev": "npx wrangler dev",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@nativefragments/core": "^0.4.1"
+  },
+  "devDependencies": {
+    "@web/test-runner": "^0.20.2"
+  }
+}

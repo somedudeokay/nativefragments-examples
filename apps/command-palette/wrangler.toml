@@ -1,0 +1,10 @@
+name = "nativefragments-demo-command-palette"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+routes = [
+  { pattern = "command-palette.nativefragments.org", custom_domain = true }
+]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"

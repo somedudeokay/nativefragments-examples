@@ -1,0 +1,15 @@
+{
+  "name": "nativefragments-examples",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "check": "node scripts/run-each.mjs check",
+    "deploy": "node scripts/run-each.mjs deploy",
+    "test": "node scripts/run-each.mjs test",
+    "update-screenshots": "node scripts/update-screenshots.mjs"
+  }
+}
