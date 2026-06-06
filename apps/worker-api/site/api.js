@@ -1,4 +1,4 @@
-import { summary } from "./model.js";
+import { health, summary } from "./model.js";
 
 const json = (data, init = {}) =>
   Response.json(data, {
@@ -14,10 +14,7 @@ export const api = {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/health") {
-      return json({
-        ok: true,
-        service: "nativefragments-demo-worker-api",
-      });
+      return json(health());
     }
 
     if (url.pathname === "/api/summary") {

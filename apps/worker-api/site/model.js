@@ -17,3 +17,19 @@ export const summary = () => ({
   runtime: "Cloudflare Workers",
   testRunner: "node:test",
 });
+
+export const health = () => ({
+  ok: true,
+  service: "nativefragments-demo-worker-api",
+});
+
+// Representative payloads rendered into the docs response preview so the panel
+// is fully server-rendered (SSR/CSR parity) instead of waiting on a fetch.
+export const sampleResponses = {
+  get health() {
+    return health();
+  },
+  get summary() {
+    return summary();
+  },
+};
