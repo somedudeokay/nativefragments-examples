@@ -67,6 +67,8 @@ export const applyCounterAction = (state, action) => {
   });
 };
 
+const signed = (value) => (value > 0 ? `+${value}` : String(value));
+
 export const counterView = (state) => {
   const current = createCounterState(state);
   const range = counterConfig.max - counterConfig.min;
@@ -80,16 +82,26 @@ export const counterView = (state) => {
         ? "below origin"
         : "at origin";
 
+  const distance = Math.abs(current.count);
+  const parity = current.count % 2 === 0 ? "even" : "odd";
+
   return {
     canDecrement: current.count > counterConfig.min,
     canIncrement: current.count < counterConfig.max,
-    countLabel: String(current.count),
+    count: current.count,
+    countLabel: signed(current.count),
+    distance,
+    distanceLabel: String(distance),
+    doubled: current.count * 2,
+    doubledLabel: signed(current.count * 2),
     history: current.history,
     historyLabel: current.history.join(", "),
     max: counterConfig.max,
     min: counterConfig.min,
+    parity,
     progress,
     status,
+    step: current.step,
     stepLabel: String(current.step),
     tone,
   };
