@@ -82,8 +82,16 @@ class ThemeSwitcher extends HTMLElement {
       );
     });
 
-    const output = root?.querySelector("[data-current-theme]");
-    if (output) output.value = theme.id;
+    const tag = root?.querySelector("[data-current-theme]");
+    if (tag) tag.textContent = theme.id;
+
+    const activeLabel = root?.querySelector("[data-active-label]");
+    if (activeLabel) activeLabel.textContent = theme.label;
+
+    root?.querySelectorAll("[data-token-value]").forEach((cell) => {
+      const value = theme.tokens[cell.dataset.tokenValue];
+      if (value) cell.textContent = value;
+    });
 
     this.dispatchEvent(
       new CustomEvent("themechange", {
