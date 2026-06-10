@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Met Gallery">
+  <rect width="64" height="64" rx="10" fill="#f8f3ea"/>
+  <path d="M12 48h40M17 42V20l15-7 15 7v22" fill="none" stroke="#171512" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 42V27h16v15" fill="none" stroke="#8f2f24" stroke-width="4" stroke-linejoin="round"/>
+</svg>

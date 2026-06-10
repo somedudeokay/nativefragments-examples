@@ -1,0 +1,11 @@
+name = "nativefragments-met-gallery"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+workers_dev = true
+routes = [
+  { pattern = "met-gallery.nativefragments.org", custom_domain = true }
+]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
