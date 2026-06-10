@@ -24,7 +24,7 @@ test("registers the settings parent and child routes", () => {
     ],
   );
   assert.equal(settingsPanel.name, "settings-panel");
-  assert.equal(typeof routes[1].fragments["settings-panel"], "function");
+  assert.equal(typeof routes[1].fragments["settings-panel"].render, "function");
 });
 
 test("renders a complete fallback document for a child route", async () => {
