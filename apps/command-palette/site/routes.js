@@ -1,4 +1,4 @@
-import { declarativeShadow, html, raw, route } from "@nativefragments/core/server";
+import { declarativeShadow, html, route } from "@nativefragments/core/server";
 import {
   paletteHtml,
   paletteStyles,
@@ -19,13 +19,9 @@ const backdrop = () => html`<div class="stage-app" aria-hidden="true">
   <aside class="stage-rail">
     <span class="stage-mark">NF</span>
     <ul>
-      ${raw(
-        backdropNav
-          .map(
-            (item, i) =>
-              `<li${i === 1 ? ' class="on"' : ""}>${item}</li>`,
-          )
-          .join(""),
+      ${backdropNav.map(
+        (item, i) =>
+          html`<li${i === 1 ? html` class="on"` : ""}>${item}</li>`,
       )}
     </ul>
   </aside>
@@ -35,13 +31,10 @@ const backdrop = () => html`<div class="stage-app" aria-hidden="true">
       <span class="stage-cta">⌘K</span>
     </div>
     <div class="stage-table">
-      ${raw(
-        backdropRows
-          .map(
-            ([name, env, when]) =>
-              `<div class="stage-row"><span class="dot"></span><b>${name}</b><span class="env">${env}</span><span class="when">${when}</span></div>`,
-          )
-          .join(""),
+      ${backdropRows.map(
+        ([name, env, when]) => html`<div class="stage-row">
+          <span class="dot"></span><b>${name}</b><span class="env">${env}</span><span class="when">${when}</span>
+        </div>`,
       )}
     </div>
   </div>
@@ -59,7 +52,7 @@ const homePage = () => html`<section class="stage">
   </div>
 
   <div class="stage-frame">
-    ${raw(backdrop())}
+    ${backdrop()}
 
     <div class="scrim">
       <command-palette>${declarativeShadow({

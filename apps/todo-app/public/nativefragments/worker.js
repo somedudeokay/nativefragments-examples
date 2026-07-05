@@ -8,11 +8,13 @@ const post = (target, message, transfer = []) => {
 const serializeError = (error) => ({
   message: error?.message ?? String(error),
   name: error?.name ?? "Error",
+  stack: error?.stack,
 });
 
 const toError = (error) => {
   const next = new Error(error?.message ?? "Worker call failed");
   next.name = error?.name ?? "Error";
+  if (error?.stack) next.stack = error.stack;
   return next;
 };
 
@@ -45,18 +47,29 @@ export const transferResult = (payload, transfer = []) => ({
  * @typedef {object} NativeWorkerClient
  * @property {(type: string, payload?: unknown, transfer?: Transferable[]) => Promise<unknown>} call
  * Call a named worker handler.
- * @property {() => void} dispose Reject pending calls and remove listeners.
+ * @property {() => void} dispose Reject pending calls, remove listeners, and
+ * terminate workers constructed by `createWorkerClient`.
  * @property {Worker} worker The wrapped Worker instance.
+ */
+
+/**
+ * @typedef {object} NativeWorkerScope
+ * @property {(message: unknown, transfer?: Transferable[]) => void} postMessage
+ * Post a message to the paired thread.
+ * @property {(type: "message", listener: (event: MessageEvent) => void) => void} addEventListener
+ * Register a message listener.
+ * @property {(type: "message", listener: (event: MessageEvent) => void) => void} removeEventListener
+ * Remove a message listener.
  */
 
 /**
  * Create a tiny RPC client for a dedicated Web Worker.
  *
  * @param {Worker} worker Worker instance.
- * @param {WorkerClientOptions} [options={}] Client options.
+ * @param {WorkerClientOptions & { owned?: boolean }} [options={}] Client options.
  * @returns {NativeWorkerClient} Worker client.
  */
-export const workerClient = (worker, { timeout = 30_000 } = {}) => {
+export const workerClient = (worker, { timeout = 30_000, owned = false } = {}) => {
   let lastId = 0;
   const pending = new Map();
 
@@ -106,6 +119,7 @@ export const workerClient = (worker, { timeout = 30_000 } = {}) => {
         request.reject(new Error("Worker client disposed"));
         pending.delete(id);
       }
+      if (owned) worker.terminate();
     },
   };
 };
@@ -122,10 +136,9 @@ export const createWorkerClient = (
   workerOrUrl,
   { workerOptions = { type: "module" }, ...clientOptions } = {},
 ) => {
-  const worker = isWorkerUrl(workerOrUrl)
-    ? new Worker(workerOrUrl, workerOptions)
-    : workerOrUrl;
-  return workerClient(worker, clientOptions);
+  const owned = isWorkerUrl(workerOrUrl);
+  const worker = owned ? new Worker(workerOrUrl, workerOptions) : workerOrUrl;
+  return workerClient(worker, { ...clientOptions, owned });
 };
 
 /**
@@ -133,7 +146,7 @@ export const createWorkerClient = (
  *
  * @param {Record<string, (payload: unknown, context: { event: MessageEvent, type: string }) => unknown | Promise<unknown>>} handlers
  * Worker handlers keyed by message type.
- * @param {DedicatedWorkerGlobalScope} [scope=globalThis] Worker global scope.
+ * @param {NativeWorkerScope} [scope=globalThis] Worker global scope.
  * @returns {() => void} Cleanup function.
  */
 export const exposeWorker = (handlers, scope = globalThis) => {

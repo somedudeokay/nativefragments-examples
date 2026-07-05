@@ -2,7 +2,6 @@ import {
   declarativeShadow,
   fragment,
   html,
-  raw,
 } from "@nativefragments/core/server";
 import {
   SECTIONS,
@@ -16,7 +15,7 @@ const navLink = ({ section, active }) => html`<a
   class="section-link"
   href="${section.path}"
   data-section-nav
-  ${raw(active ? 'aria-current="page"' : "")}
+  ${active ? html`aria-current="page"` : ""}
   ${dashboardFragment.prefetchAttrs("intent")}
 >
   <span aria-hidden="true">${section.kicker}</span>
@@ -58,10 +57,8 @@ export const dashboardPage = ({ section }) => html`<main class="app-shell">
 
     <p class="nav-label">Sections</p>
     <nav class="section-nav" aria-label="Sections">
-      ${raw(
-        SECTIONS.map((item) =>
-          navLink({ active: item.id === section.id, section: item }),
-        ).join(""),
+      ${SECTIONS.map((item) =>
+        navLink({ active: item.id === section.id, section: item }),
       )}
     </nav>
 
@@ -92,7 +89,7 @@ export const dashboardPage = ({ section }) => html`<main class="app-shell">
       class="dashboard-panel"
       ${dashboardFragment.attrs()}
     >
-      ${raw(dashboardPanel({ section }))}
+      ${dashboardPanel({ section })}
     </section>
   </section>
 </main>`;

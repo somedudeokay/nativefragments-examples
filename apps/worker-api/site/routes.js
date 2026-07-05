@@ -9,7 +9,7 @@ const methodBadge = (method) =>
 const endpointRows = () =>
   endpoints.map(
     (endpoint, index) => html`<tr id="ep-${index}">
-      <td class="ep-method">${raw(methodBadge(endpoint.method))}</td>
+      <td class="ep-method">${methodBadge(endpoint.method)}</td>
       <td class="ep-path">
         <a href="${endpoint.path}" data-nativefragments-reload><code>${endpoint.path}</code></a>
       </td>
@@ -99,7 +99,7 @@ const homePage = () => {
         <thead>
           <tr><th scope="col">Method</th><th scope="col">Path</th><th scope="col">Description</th></tr>
         </thead>
-        <tbody>${raw(endpointRows().join(""))}</tbody>
+        <tbody>${endpointRows()}</tbody>
       </table>
 
       <div class="callout">
@@ -114,8 +114,8 @@ const homePage = () => {
 
     <aside class="preview" aria-label="Example responses">
       <p class="preview__label">Response preview</p>
-      ${raw(responsePanel("/api/health", sampleResponses.health))}
-      ${raw(responsePanel("/api/summary", sampleResponses.summary))}
+      ${responsePanel("/api/health", sampleResponses.health)}
+      ${responsePanel("/api/summary", sampleResponses.summary)}
     </aside>
   </div>`;
 };

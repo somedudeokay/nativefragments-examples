@@ -766,7 +766,7 @@ export const renderTodoAppShadow = (state, options = {}) => {
     </aside>
 
     <section class="board" aria-label="Todo list">
-      <form class="composer" data-action="add">
+      <form class="composer" data-action="add" action="${pathForFilter(filter)}" method="post">
         <label for="new-task">New entry</label>
         <div class="input-row">
           <input id="new-task" name="title" autocomplete="off" maxlength="80" required placeholder="Name the next small thing&hellip;" />

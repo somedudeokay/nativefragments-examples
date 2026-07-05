@@ -1,4 +1,4 @@
-import { html, raw } from "@nativefragments/core/server";
+import { html } from "@nativefragments/core/server";
 
 const sessions = [
   ["MacBook Pro", "Oslo, Norway", "Active now"],
@@ -47,16 +47,12 @@ export const securityPanel = () => html`<article
 
   <section class="session-list" aria-label="Recent sessions">
     <h3>Recent sessions</h3>
-    ${raw(
-      sessions
-        .map(
-          ([device, location, seen]) => html`<div class="session-row">
+    ${sessions.map(
+      ([device, location, seen]) => html`<div class="session-row">
             <strong>${device}</strong>
             <span>${location}</span>
             <time>${seen}</time>
           </div>`,
-        )
-        .join(""),
     )}
   </section>
 </article>`;

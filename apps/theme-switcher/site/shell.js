@@ -38,10 +38,10 @@ export const shell = ({ body, meta }) => html`<!doctype html>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    ${raw(head({ meta }))}
+    ${head({ meta })}
   </head>
   <body>
     <a class="skip-link" href="#content">Skip to content</a>
-    <main id="content">${raw(body)}</main>
+    <main id="content">${body}</main>
   </body>
 </html>`;

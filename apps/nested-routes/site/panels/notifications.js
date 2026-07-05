@@ -1,4 +1,4 @@
-import { attrs, html, raw } from "@nativefragments/core/server";
+import { attrs, html } from "@nativefragments/core/server";
 
 const channels = [
   ["Product updates", "Weekly digest", true],
@@ -31,18 +31,14 @@ export const notificationsPanel = () => html`<article
     </div>
 
     <div class="channel-list" aria-label="Notification channels">
-      ${raw(
-        channels
-          .map(
-            ([label, hint, enabled]) => html`<label class="channel-row">
+      ${channels.map(
+        ([label, hint, enabled]) => html`<label class="channel-row">
               <span>
                 <strong>${label}</strong>
                 <small>${hint}</small>
               </span>
               <input type="checkbox"${attrs({ checked: enabled })} />
             </label>`,
-          )
-          .join(""),
       )}
     </div>
   </section>

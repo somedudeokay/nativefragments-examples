@@ -1,4 +1,4 @@
-import { html, raw } from "@nativefragments/core/server";
+import { html } from "@nativefragments/core/server";
 
 const invoices = [
   ["INV-2042", "May 2026", "$29.00", "Paid"],
@@ -44,17 +44,13 @@ export const billingPanel = () => html`<article class="panel-card" data-panel="b
 
   <section class="invoice-table" aria-label="Recent invoices">
     <h3>Recent invoices</h3>
-    ${raw(
-      invoices
-        .map(
-          ([number, period, amount, status]) => html`<div class="invoice-row">
+    ${invoices.map(
+      ([number, period, amount, status]) => html`<div class="invoice-row">
             <strong>${number}</strong>
             <span>${period}</span>
             <span>${amount}</span>
             <em>${status}</em>
           </div>`,
-        )
-        .join(""),
     )}
   </section>
 </article>`;

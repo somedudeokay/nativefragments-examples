@@ -31,23 +31,21 @@ const statTile = (label, value) => html`<div class="stat-tile">
 
 const statsSkeleton = () => html`<div class="stats-card stats-card--loading" aria-hidden="true">
   <div class="stats-grid">
-    ${raw(
-      Array.from(
-        { length: 3 },
-        () => html`<div class="stat-tile">
+    ${Array.from(
+      { length: 3 },
+      () => html`<div class="stat-tile">
           <span class="sk sk-stat-label"></span>
           <span class="sk sk-stat-value"></span>
         </div>`,
-      ).join(""),
     )}
   </div>
 </div>`;
 
 const statsCard = (data) => html`<div class="stats-card">
   <div class="stats-grid">
-    ${raw(statTile("Artworks", formatCount(data.total)))}
-    ${raw(statTile("On view", `${data.onView}/${data.sample}`))}
-    ${raw(statTile("With image", `${data.withImages}/${data.sample}`))}
+    ${statTile("Artworks", formatCount(data.total))}
+    ${statTile("On view", `${data.onView}/${data.sample}`)}
+    ${statTile("With image", `${data.withImages}/${data.sample}`)}
   </div>
 </div>`;
 
@@ -145,7 +143,7 @@ const tableSkeleton = ({ url }) => {
   const collection = collectionForTopic(topicForUrl(url));
 
   return html`<div class="table-card table-card--loading" aria-hidden="true">
-  ${raw(tableMeta({ label: collection.label, value: "Loading rows" }))}
+  ${tableMeta({ label: collection.label, value: "Loading rows" })}
   <table class="object-table">
     <thead>
       <tr>
@@ -156,7 +154,7 @@ const tableSkeleton = ({ url }) => {
       </tr>
     </thead>
     <tbody>
-      ${raw(tableSkeletonRows.join(""))}
+      ${tableSkeletonRows}
     </tbody>
   </table>
 </div>`;
@@ -178,7 +176,7 @@ const objectRow = (row) => html`<tr>
 </tr>`;
 
 const objectTable = (data) => html`<div class="table-card">
-  ${raw(tableMeta({ label: data.label, value: `${data.rows.length} of ${formatCount(data.total)}` }))}
+  ${tableMeta({ label: data.label, value: `${data.rows.length} of ${formatCount(data.total)}` })}
   <table class="object-table">
     <caption>
       Art Institute of Chicago rows for ${data.label}
@@ -192,7 +190,7 @@ const objectTable = (data) => html`<div class="table-card">
       </tr>
     </thead>
     <tbody>
-      ${raw(data.rows.map(objectRow).join(""))}
+      ${data.rows.map(objectRow)}
     </tbody>
   </table>
 </div>`;
@@ -219,7 +217,7 @@ const page = (context) => {
       <aside class="side-panel side-panel--left">
         <p class="panel-label">Index</p>
         <nav class="topic-list" aria-label="Choose a collection index">
-          ${raw(topics.map((topic) => topicLink({ active, topic })).join(""))}
+          ${topics.map((topic) => topicLink({ active, topic }))}
         </nav>
       </aside>
 

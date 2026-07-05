@@ -1,4 +1,4 @@
-import { html, raw } from "@nativefragments/core/server";
+import { html } from "@nativefragments/core/server";
 import { panelMeta, panels, renderPanel } from "../panels/index.js";
 
 const navLink = ({ activePanel, panel, settingsPanel }) => {
@@ -34,11 +34,7 @@ export const settingsPage = ({ activePanel, settingsPanel }) => {
       </div>
 
       <nav class="settings-nav" data-settings-nav>
-        ${raw(
-          panels
-            .map((panel) => navLink({ activePanel, panel, settingsPanel }))
-            .join(""),
-        )}
+        ${panels.map((panel) => navLink({ activePanel, panel, settingsPanel }))}
       </nav>
 
       <div class="sidebar-note">
@@ -74,7 +70,7 @@ export const settingsPage = ({ activePanel, settingsPanel }) => {
           class: "settings-panel",
         })}
       >
-        ${raw(renderPanel(activePanel))}
+        ${renderPanel(activePanel)}
       </section>
     </section>
   </section>`;

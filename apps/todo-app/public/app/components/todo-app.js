@@ -1,4 +1,5 @@
 import { shadow, sheet } from "/nativefragments/component.js";
+import { clearFragmentCache } from "/nativefragments/router.js";
 import {
   addTask,
   clearCompleted,
@@ -129,6 +130,7 @@ class TodoApp extends HTMLElement {
   }
 
   _save(message) {
+    clearFragmentCache();
     if (this._storage && writeStoredState(this.state)) {
       this.message = message ?? "Saved locally in this browser.";
     } else {

@@ -116,7 +116,7 @@ const streamDock = () => html`<details class="stream-dock">
       <p class="track-note">One connection · out of order, fastest first</p>
     </div>
     <ol class="track-list">
-      ${raw(timelineRows.map(timelineRow).join(""))}
+      ${timelineRows.map(timelineRow)}
     </ol>
   </div>
 </details>`;
@@ -129,11 +129,11 @@ const shellParts = ({ meta, nonce }) => ({
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    ${raw(head({ meta }))}
-    ${raw(timelineScript(nonce))}
+    ${head({ meta })}
+    ${timelineScript(nonce)}
   </head>
   <body>
-    ${raw(streamDock())}
+    ${streamDock()}
     <main id="content-slot" class="workbench">`,
   after: html`</main>
   </body>
@@ -144,5 +144,5 @@ export const shell = ({ body, meta, nonce }) => {
   const parts = shellParts({ meta, nonce });
   if (body === undefined) return parts;
 
-  return html`${raw(parts.before)}${raw(body)}${raw(parts.after)}`;
+  return html`${parts.before}${body}${parts.after}`;
 };

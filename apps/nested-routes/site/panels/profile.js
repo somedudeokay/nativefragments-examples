@@ -1,4 +1,4 @@
-import { html, raw } from "@nativefragments/core/server";
+import { html } from "@nativefragments/core/server";
 
 const fields = [
   ["Display name", "Avery Stone"],
@@ -36,15 +36,11 @@ export const profilePanel = () => html`<article class="panel-card" data-panel="p
   </header>
 
   <div class="field-grid">
-    ${raw(
-      fields
-        .map(
-          ([label, value]) => html`<label class="field">
+    ${fields.map(
+      ([label, value]) => html`<label class="field">
             <span>${label}</span>
             <input value="${value}" />
           </label>`,
-        )
-        .join(""),
     )}
   </div>
 

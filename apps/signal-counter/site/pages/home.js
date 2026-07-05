@@ -31,7 +31,7 @@ export const homePage = () => {
     </header>
 
     <section class="demo-stage" aria-label="Interactive signal counter demo">
-      ${raw(signalCounterElement(counter))}
+      ${signalCounterElement(counter)}
     </section>
 
     <section class="notes" aria-label="Implementation notes">

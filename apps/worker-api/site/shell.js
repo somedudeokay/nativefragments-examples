@@ -14,6 +14,6 @@ export const shell = ({ body, meta }) => html`<!doctype html>
     <script type="module" src="/app/client.js"></script>
   </head>
   <body>
-    <main id="content-slot">${raw(body)}</main>
+    <main id="content-slot">${body}</main>
   </body>
 </html>`;

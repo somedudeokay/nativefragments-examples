@@ -1,26 +1,14 @@
+import { apiRoute, createApi } from "@nativefragments/core/server";
 import { health, summary } from "./model.js";
 
-const json = (data, init = {}) =>
+const noStore = (data) =>
   Response.json(data, {
     headers: {
       "Cache-Control": "no-store",
-      ...(init.headers ?? {}),
     },
-    status: init.status ?? 200,
   });
 
-export const api = {
-  fetch(request) {
-    const url = new URL(request.url);
-
-    if (url.pathname === "/api/health") {
-      return json(health());
-    }
-
-    if (url.pathname === "/api/summary") {
-      return json(summary());
-    }
-
-    return json({ error: "Not found" }, { status: 404 });
-  },
-};
+export const api = createApi([
+  apiRoute("GET", "/api/health", () => noStore(health())),
+  apiRoute("GET", "/api/summary", () => noStore(summary())),
+]);

@@ -19,10 +19,10 @@ export const shell = ({ body, meta }) => html`<!doctype html>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    ${raw(head({ meta }))}
+    ${head({ meta })}
   </head>
   <body>
     <a class="skip-link" href="#dashboard-panel">Skip to dashboard</a>
-    ${raw(body)}
+    ${body}
   </body>
 </html>`;

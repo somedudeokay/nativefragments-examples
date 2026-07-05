@@ -27,8 +27,8 @@ export const renderHome = () => {
         </p>
       </div>
       <div class="hero-meta">
-        <span class="figure">${raw(stats.records.toLocaleString())}</span>
-        <span class="figure-label">records · ${raw(String(stats.categories))} classes</span>
+        <span class="figure">${stats.records.toLocaleString()}</span>
+        <span class="figure-label">records · ${stats.categories} classes</span>
       </div>
     </section>
 

@@ -11,6 +11,6 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@nativefragments/core": "^0.5.0"
+    "@nativefragments/core": "^0.6.0"
   }
 }

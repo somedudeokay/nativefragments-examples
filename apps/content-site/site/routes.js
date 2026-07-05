@@ -1,4 +1,4 @@
-import { html, raw, route } from "@nativefragments/core/server";
+import { html, route } from "@nativefragments/core/server";
 import {
   articleBySlug,
   articleNeighbors,
@@ -17,17 +17,15 @@ const formatDate = (iso) => {
 };
 
 const articleLinks = (activeSlug) =>
-  raw(
-    articles
-      .map((article, index) => {
-        const active = article.slug === activeSlug;
-        const number = String(index + 1).padStart(2, "0");
-        return html`<li>
+  articles.map((article, index) => {
+    const active = article.slug === activeSlug;
+    const number = String(index + 1).padStart(2, "0");
+    return html`<li>
           <a
             class="index-link${active ? " is-active" : ""}"
             href="/${article.slug}"
             data-fragment-prefetch="visible"
-            ${active ? raw('aria-current="page"') : raw("")}
+            ${active ? html`aria-current="page"` : ""}
           >
             <span class="index-link__num">${number}</span>
             <span class="index-link__body">
@@ -38,9 +36,7 @@ const articleLinks = (activeSlug) =>
             </span>
           </a>
         </li>`;
-      })
-      .join(""),
-  );
+  });
 
 const renderBlock = (block) => {
   switch (block.type) {
@@ -52,7 +48,7 @@ const renderBlock = (block) => {
       return html`<pre><code>${block.text}</code></pre>`;
     case "list":
       return html`<ul>
-        ${raw(block.items.map((item) => html`<li>${item}</li>`).join(""))}
+        ${block.items.map((item) => html`<li>${item}</li>`)}
       </ul>`;
     default:
       return html`<p>${block.text}</p>`;
@@ -60,7 +56,7 @@ const renderBlock = (block) => {
 };
 
 const articleBody = (article) =>
-  raw(article.blocks.map((block) => renderBlock(block)).join(""));
+  article.blocks.map((block) => renderBlock(block));
 
 const neighborNav = (slug) => {
   const { prev, next } = articleNeighbors(slug);
@@ -71,7 +67,7 @@ const neighborNav = (slug) => {
           <span class="pager__title">${article.title}</span>
         </a>`
       : html`<span class="pager__link pager__link--empty" aria-hidden="true"></span>`;
-  return raw(card(prev, "prev", "Previous") + card(next, "next", "Next"));
+  return html`${card(prev, "prev", "Previous")}${card(next, "next", "Next")}`;
 };
 
 const articlePage = ({ params }) => {

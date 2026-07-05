@@ -31,9 +31,11 @@ export const nextStep = (id = "profile") =>
 export const progress = (id = "profile") =>
   Math.round(((stepIndex(id) + 1) / steps.length) * 100);
 
-export const planFromSearch = (searchParams) => ({
-  cadence: searchParams.get("cadence") || "Weekly",
-  name: searchParams.get("name") || "Native team",
-  role: searchParams.get("role") || "Product engineering",
-  visibility: searchParams.get("visibility") || "Shared",
-});
+export const planFromSearch = (searchParams) =>
+  readSearch(searchParams, {
+    cadence: "Weekly",
+    name: "Native team",
+    role: "Product engineering",
+    visibility: "Shared",
+  });
+import { readSearch } from "@nativefragments/core/server";

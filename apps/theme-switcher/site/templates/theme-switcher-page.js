@@ -1,4 +1,4 @@
-import { html, raw } from "@nativefragments/core/server";
+import { html } from "@nativefragments/core/server";
 
 export const themeSwitcherPageTemplate = ({ switcher }) => html`
   <section class="app-shell" aria-labelledby="page-title">
@@ -23,6 +23,6 @@ export const themeSwitcherPageTemplate = ({ switcher }) => html`
       </aside>
     </header>
 
-    ${raw(switcher)}
+    ${switcher}
   </section>
 `;

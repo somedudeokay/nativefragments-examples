@@ -5,6 +5,7 @@ import {
   raw,
 } from "@nativefragments/core/server";
 import {
+  addTask,
   createInitialState,
   filterFromPath,
 } from "../../public/app/model/todo-state.js";
@@ -15,19 +16,21 @@ import {
 
 export const todoPage = ({ url } = { url: new URL("https://todo-app.nativefragments.org/") }) => {
   const filter = filterFromPath(url.pathname);
-  const state = createInitialState({ filter });
+  const initialState = createInitialState({ filter });
+  const added = url.searchParams.get("added");
+  const state = added
+    ? addTask(initialState, added, { now: url.searchParams.get("addedAt") ?? Date.now() })
+    : initialState;
 
   return html`<todo-app data-filter="${filter}">
     ${declarativeShadow({
       styles: [todoAppStyles],
       html: renderTodoAppShadow(state, {
-        message: "Server rendered. Edits save in this browser.",
+        message: added
+          ? "Server handled the POST. Edits save in this browser once JavaScript loads."
+          : "Server rendered. Edits save in this browser.",
       }),
     })}
-    ${raw(
-      `<script type="application/json" data-todo-state>${jsonScript(
-        state,
-      )}</script>`,
-    )}
+    <script type="application/json" data-todo-state>${raw(jsonScript(state))}</script>
   </todo-app>`;
 };

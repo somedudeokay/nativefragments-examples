@@ -40,29 +40,28 @@ const stepNav = (activeId) => {
         state === "done"
           ? html`<span class="step-mark" aria-hidden="true">${checkIcon}</span>`
           : html`<span class="step-mark" aria-hidden="true">${index + 1}</span>`;
-      const inner = html`${raw(marker)}
+      const inner = html`${marker}
         <span class="step-text">
           <span class="step-title">${step.title}</span>
           <span class="step-sub">${blurbFor[step.id]}</span>
         </span>`;
       const body =
         state === "todo"
-          ? html`<span class="step-link" aria-current="false">${raw(inner)}</span>`
+          ? html`<span class="step-link" aria-current="false">${inner}</span>`
           : html`<a
               class="step-link"
               href="${stepHref(step.id)}"
               data-fragment-prefetch="intent"
-              ${raw(state === "current" ? 'aria-current="step"' : "")}
-              >${raw(inner)}</a
+              ${state === "current" ? html`aria-current="step"` : ""}
+              >${inner}</a
             >`;
-      return html`<li class="step ${state}">${raw(body)}</li>`;
-    })
-    .join("");
+      return html`<li class="step ${state}">${body}</li>`;
+    });
 
   return html`<nav class="stepper" aria-label="Setup progress">
     <p class="rail-label">Setup</p>
     <ol class="step-nav">
-      ${raw(items)}
+      ${items}
     </ol>
   </nav>`;
 };
@@ -71,7 +70,7 @@ const field = ({ name, label, value, hint, type = "text" }) => html`<div
   class="field"
 >
   <label for="f-${name}">${label}</label>
-  ${hint ? raw(html`<p class="field-hint">${hint}</p>`) : ""}
+  ${hint ? html`<p class="field-hint">${hint}</p>` : ""}
   <input id="f-${name}" name="${name}" type="${type}" value="${value}" autocomplete="off" />
 </div>`;
 
@@ -94,50 +93,41 @@ const fieldsFor = (step, plan) => {
             >Edit</a
           >
         </div>`,
-      )
-      .join("");
+      );
     return html`<dl class="review">
-      ${raw(rows)}
+      ${rows}
     </dl>`;
   }
 
   if (step.id === "preferences") {
-    return html`${raw(
-        field({
-          name: "cadence",
-          label: "Update cadence",
-          value: plan.cadence,
-          hint: "How often digests and summaries go out, e.g. Weekly or Daily.",
-        }),
-      )}
-      ${raw(
-        field({
-          name: "visibility",
-          label: "Default visibility",
-          value: plan.visibility,
-          hint: "Who can see new projects by default, e.g. Shared or Private.",
-        }),
-      )}
+    return html`${field({
+      name: "cadence",
+      label: "Update cadence",
+      value: plan.cadence,
+      hint: "How often digests and summaries go out, e.g. Weekly or Daily.",
+    })}
+      ${field({
+        name: "visibility",
+        label: "Default visibility",
+        value: plan.visibility,
+        hint: "Who can see new projects by default, e.g. Shared or Private.",
+      })}
       <input name="name" type="hidden" value="${plan.name}" />
       <input name="role" type="hidden" value="${plan.role}" />`;
   }
 
-  return html`${raw(
-      field({
-        name: "name",
-        label: "Workspace name",
-        value: plan.name,
-        hint: "The display name your team will see across the product.",
-      }),
-    )}
-    ${raw(
-      field({
-        name: "role",
-        label: "Primary role",
-        value: plan.role,
-        hint: "We use this to tailor onboarding suggestions.",
-      }),
-    )}`;
+  return html`${field({
+    name: "name",
+    label: "Workspace name",
+    value: plan.name,
+    hint: "The display name your team will see across the product.",
+  })}
+    ${field({
+      name: "role",
+      label: "Primary role",
+      value: plan.role,
+      hint: "We use this to tailor onboarding suggestions.",
+    })}`;
 };
 
 const wizardPage = ({ params, url }) => {
@@ -160,7 +150,7 @@ const wizardPage = ({ params, url }) => {
     </header>
 
     <section class="wizard" aria-labelledby="step-heading">
-      ${raw(stepNav(step.id))}
+      ${stepNav(step.id)}
 
       <article class="panel">
         <div class="progress" role="group" aria-label="Completion">
@@ -187,8 +177,8 @@ const wizardPage = ({ params, url }) => {
           <h2 id="step-heading">${step.prompt}</h2>
           <p class="panel-blurb">${blurbFor[step.id]}</p>
 
-          <form action="${isDone ? "/" : stepHref(next.id)}" method="get">
-            ${raw(fieldsFor(step, plan))}
+          <form action="${isDone ? "/" : stepHref(next.id)}" method="get" data-fragment-form>
+            ${fieldsFor(step, plan)}
             <div class="actions">
               <button class="btn-primary" type="submit">
                 <span>${isDone ? "Finish setup" : `Continue to ${next.title}`}</span>
@@ -196,9 +186,7 @@ const wizardPage = ({ params, url }) => {
               </button>
               ${
                 isDone
-                  ? raw(
-                      html`<a class="btn-ghost" href="/" data-fragment-prefetch="intent">Start over</a>`,
-                    )
+                  ? html`<a class="btn-ghost" href="/" data-fragment-prefetch="intent">Start over</a>`
                   : ""
               }
             </div>

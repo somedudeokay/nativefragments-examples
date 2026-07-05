@@ -40,7 +40,7 @@ const filterNav = (active, counts) => html`<nav
   class="filters"
   aria-label="Filter activity"
 >
-  ${raw(filters.map((filter) => chip(filter, active, counts[filter])).join(""))}
+  ${filters.map((filter) => chip(filter, active, counts[filter]))}
 </nav>`;
 
 const eventRow = (event) => html`<li class="event event--${event.kind}">
@@ -63,7 +63,7 @@ const eventRow = (event) => html`<li class="event event--${event.kind}">
 </li>`;
 
 const eventList = (items) => html`<ol class="feed" role="list">
-  ${raw(items.map(eventRow).join(""))}
+  ${items.map(eventRow)}
 </ol>`;
 
 const homePage = ({ url }) => {
@@ -86,7 +86,7 @@ const homePage = ({ url }) => {
     </header>
 
     <div class="controls">
-      ${raw(filterNav(summary.filter, counts))}
+      ${filterNav(summary.filter, counts)}
       <a class="refresh" href="${filterHref(summary.filter)}" data-fragment-prefetch="none">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12a7 7 0 1 1-2.1-5" /><path d="M19 4v4h-4" /></svg>
         <span>Refresh</span>
@@ -100,7 +100,7 @@ const homePage = ({ url }) => {
       · newest <code class="result__id">${summary.newest ?? "—"}</code>
     </p>
 
-    ${raw(eventList(items))}
+    ${eventList(items)}
   </section>`;
 };
 
