@@ -1,3 +1,5 @@
+import { readSearch } from "@nativefragments/core/server";
+
 export const steps = [
   {
     id: "profile",
@@ -38,4 +40,3 @@ export const planFromSearch = (searchParams) =>
     role: "Product engineering",
     visibility: "Shared",
   });
-import { readSearch } from "@nativefragments/core/server";

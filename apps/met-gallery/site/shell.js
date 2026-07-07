@@ -1,4 +1,4 @@
-import { html, raw } from "@nativefragments/core/server";
+import { attrs, html } from "@nativefragments/core/server";
 
 const head = ({ meta }) => html`
   <title>${meta.title}</title>
@@ -19,9 +19,7 @@ const head = ({ meta }) => html`
  * nonce so it survives a strict policy.
  */
 const timelineScript = (nonce) => {
-  const nonceAttr = nonce ? ` nonce="${nonce}"` : "";
-
-  return html`<script${raw(nonceAttr)}>
+  return html`<script${attrs({ nonce })}>
 (() => {
   const start = performance.now();
   const MAX = 1500;

@@ -180,7 +180,7 @@ const routes = [
     render: () => page("Router smoke", html`
       <form id="search-form" action="/search" method="get" data-fragment-form>
         <input name="q" value="native fragments" />
-        <button type="submit">Search</button>
+        <button type="submit" name="mode" value="fast">Search</button>
       </form>
       ${tallBlock()}
       <h2 id="anchor-target">Anchor target</h2>
@@ -274,9 +274,17 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    const hasBody = req.method !== "GET" && req.method !== "HEAD";
+    let body;
+    if (hasBody) {
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      body = chunks.length ? Buffer.concat(chunks) : undefined;
+    }
     const request = new Request(`${origin}${req.url}`, {
       headers: req.headers,
       method: req.method,
+      body,
     });
     if (
       request.headers.get("x-fragment") === "true" &&
@@ -345,6 +353,13 @@ const run = async () => {
     assert.equal(await evalInPage(session, "window.__nfAfter.length"), 0);
     assert.ok(await evalInPage(session, "window.scrollY > 500"));
 
+    await evalInPage(session, "history.back()");
+    await waitFor(() => evalInPage(session, "location.hash === ''"), "hash back did not clear the hash");
+    await waitFor(() => evalInPage(session, "window.scrollY < 100"), "hash back did not restore scroll");
+    await evalInPage(session, "history.forward()");
+    await waitFor(() => evalInPage(session, "location.hash === '#anchor-target'"), "hash forward did not restore the hash");
+    await waitFor(() => evalInPage(session, "window.scrollY > 500"), "hash forward did not scroll to the anchor");
+
     await evalInPage(session, "document.getElementById('cross-hash').click()");
     await waitFor(() => evalInPage(session, "location.pathname === '/page' && location.hash === '#deep-target'"), "cross-page hash did not navigate");
     assert.ok(await evalInPage(session, "window.scrollY > 500"));
@@ -364,8 +379,8 @@ const run = async () => {
 
     await navigateDocument(session, origin, "home reload failed");
     await evalInPage(session, "document.querySelector('#search-form input').value = 'query smoke'");
-    await evalInPage(session, "document.getElementById('search-form').requestSubmit()");
-    await waitFor(() => evalInPage(session, "location.pathname === '/search' && location.search === '?q=query+smoke'"), "GET form did not fragment navigate");
+    await evalInPage(session, "document.getElementById('search-form').requestSubmit(document.querySelector('#search-form button'))");
+    await waitFor(() => evalInPage(session, "location.pathname === '/search' && location.search === '?q=query+smoke&mode=fast'"), "GET form did not fragment navigate");
     assert.equal(await evalInPage(session, "document.getElementById('query-result').textContent"), "query smoke");
 
     await navigateDocument(session, origin, "home reload failed");

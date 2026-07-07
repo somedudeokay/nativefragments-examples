@@ -380,9 +380,9 @@ const effectiveFormAction = (form, submitter) =>
 const effectiveFormTarget = (form, submitter) =>
   submitter?.getAttribute("formtarget") ?? form.getAttribute("target") ?? "";
 
-const formDataSearch = (form) => {
+const formDataSearch = (form, submitter) => {
   const params = new URLSearchParams();
-  for (const [name, value] of new FormData(form)) {
+  for (const [name, value] of new FormData(form, submitter)) {
     params.append(name, String(value));
   }
   return params;
@@ -534,7 +534,11 @@ export const installFragmentNavigation = ({
     if (shouldUseDocumentNavigation(link)) return;
 
     const url = routeTo(link.href);
-    if (sameRoute(url) && url.hash) return;
+    if (sameRoute(url) && url.hash) {
+      // Native in-page anchor jump; save the position so Back can restore it.
+      saveCurrentScrollPosition();
+      return;
+    }
 
     event.preventDefault();
     navigate(url, true, link.dataset.fragmentSlot ?? slot);
@@ -553,7 +557,7 @@ export const installFragmentNavigation = ({
     const url = effectiveFormAction(form, submitter);
     if (url.origin !== window.location.origin) return;
 
-    const search = formDataSearch(form).toString();
+    const search = formDataSearch(form, submitter).toString();
     url.search = search ? `?${search}` : "";
 
     event.preventDefault();
@@ -562,7 +566,15 @@ export const installFragmentNavigation = ({
 
   window.addEventListener("popstate", (event) => {
     const url = new URL(window.location.href);
-    if (url.hash && fragmentUrl(url) === renderedRoute) return;
+    if (fragmentUrl(url) === renderedRoute) {
+      // Hash or same-route traversal: the DOM is already correct, and manual
+      // scrollRestoration means the browser will not move — do it ourselves.
+      const sameSlot = (event.state?.fragmentSlot ?? slot) === slot;
+      if (!restoreScroll(event.state?.scroll) && !scrollToHash(url) && sameSlot) {
+        scrollToTop();
+      }
+      return;
+    }
     navigate(url, false, event.state?.fragmentSlot ?? slot, {
       restore: event.state?.scroll,
       userInitiated: false,
