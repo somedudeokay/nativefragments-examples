@@ -14,10 +14,19 @@ Useful commands:
 ```sh
 npm run check
 npm run test
+npm run test:router
 npm run deploy
 ```
 
 Each app package also supports the same commands from its own directory.
+`npm run test:router` drives the fragment router through a real headless
+Chrome (hash links, scroll restoration, GET forms, redirects, prefetch).
+
+Preview one app locally without `wrangler dev`:
+
+```sh
+node scripts/serve-app.mjs --app=todo-app --port=8799
+```
 
 Update the real screenshots used by the docsite after deploying examples:
 
@@ -26,8 +35,8 @@ npm run update-screenshots
 ```
 
 The script writes efficient WebP screenshots to `screenshots/`. When the sibling
-`../nativefragments.org` checkout is present, it also mirrors them into
-`../nativefragments.org/public/app/screenshots/`.
+`../nativefragments` checkout is present, it also mirrors them into
+`../nativefragments/apps/web/public/app/screenshots/`.
 
 Refresh the Worker Search meteorite dataset from NASA Open Data:
 

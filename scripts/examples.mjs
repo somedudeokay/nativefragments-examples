@@ -54,4 +54,9 @@ export const examples = [
     title: "Command Palette",
     url: "https://command-palette.nativefragments.org",
   },
+  {
+    slug: "met-gallery",
+    title: "Met Gallery",
+    url: "https://met-gallery.nativefragments.org",
+  },
 ];

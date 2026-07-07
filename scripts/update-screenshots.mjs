@@ -8,7 +8,7 @@ import { examples } from "./examples.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultOutDir = join(root, "screenshots");
-const defaultMirrorDir = resolve(root, "../nativefragments.org/public/app/screenshots");
+const defaultMirrorDir = resolve(root, "../nativefragments/apps/web/public/app/screenshots");
 
 const args = new Map(
   process.argv.slice(2).flatMap((arg) => {
@@ -26,6 +26,7 @@ const mirrorDir = args.get("mirror") === "false"
   ? null
   : resolve(args.get("mirror") ?? process.env.SCREENSHOT_MIRROR_DIR ?? defaultMirrorDir);
 const chromeBin = args.get("chrome") ?? process.env.CHROME_BIN;
+const only = args.get("only") ?? null;
 
 const sleep = (ms) => new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 
@@ -220,6 +221,7 @@ const main = async () => {
     }
 
     for (const example of examples) {
+      if (only && example.slug !== only) continue;
       const fileName = `${example.slug}.webp`;
       const image = await capture({ browserPort, example });
       const outputPath = join(outDir, fileName);
