@@ -7,7 +7,7 @@ import { signalCounterElement } from "../site/templates/signal-counter.js";
 
 describe("server rendering", () => {
   it("renders the visible counter with declarative shadow dom", () => {
-    const html = signalCounterElement();
+    const html = String(signalCounterElement());
 
     assert.match(html, /<signal-counter count="0" step="1">/);
     assert.match(html, /<template shadowrootmode="open">/);
@@ -20,7 +20,7 @@ describe("server rendering", () => {
     const route = routes.find((item) => item.path === "/");
     const meta = route.meta();
     const body = homePage();
-    const document = shell({ body, meta });
+    const document = String(shell({ body, meta }));
 
     assert.match(document, /<!doctype html>/);
     assert.match(document, /<main id="content-slot">/);
