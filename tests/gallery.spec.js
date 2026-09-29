@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { randomUUID } from "node:crypto";
 
 test.beforeEach(async ({ page }) => {
   await page.route("https://www.artic.edu/**", route => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg"/>' }));
@@ -13,8 +14,10 @@ test.beforeEach(async ({ page }) => {
 test("gallery streams out of order, replays cached visits and restores history", async ({ page }, testInfo) => {
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
-  await page.goto("/?topic=painting", { waitUntil: "commit" });
+  const gate = randomUUID();
+  await page.goto(`/?topic=painting&__stream_gate=${gate}`, { waitUntil: "commit" });
   await expect(page.locator(".table-card--loading")).toBeVisible();
+  expect((await page.request.get(`/__test/release?gate=${gate}`)).ok()).toBe(true);
   await expect(page.locator(".stream-dock")).toHaveAttribute("data-complete", "true");
   await expect(page.locator('[data-stream-count]')).toHaveText("4/4");
   await expect(page.locator('[data-timeline-slot="provenance-feed"]')).toHaveAttribute("data-state", "error");

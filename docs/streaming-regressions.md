@@ -41,6 +41,10 @@ The provenance failure is intentional and must not prevent other slots resolving
 Rapid navigation starts each following native link click on the first swap event
 and requires an observed cancellation. This keeps the overlap deterministic even
 when WebKit's automated click waits for navigation I/O on Linux runners.
+For the initial loading-state assertion, the test server sends the real document
+shell and holds subsequent chunks until the browser acknowledges the placeholder.
+This avoids missing a short-lived loading state on busy runners without changing
+application code or increasing arbitrary delays.
 
 The evaluation repeats each scenario five times in all three engines. It writes
 test-results/gallery.json and attaches per-browser reveal/navigation timings.
