@@ -191,14 +191,31 @@ h1 {
   overflow: hidden;
 }
 
-.track-fill {
+.track-progress {
+  appearance: none;
   display: block;
-  width: 0;
+  width: 100%;
   height: 100%;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.track-progress::-webkit-progress-bar {
+  background: transparent;
+}
+
+.track-progress::-webkit-progress-value {
   border-radius: 999px;
   background: var(--green);
   opacity: 0.9;
-  transition: width 0.45s ease;
+}
+
+.track-progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--green);
+  opacity: 0.9;
 }
 
 .track-time {
@@ -228,7 +245,11 @@ h1 {
   font-weight: 700;
 }
 
-.track-row[data-state="error"] .track-fill {
+.track-row[data-state="error"] .track-progress::-webkit-progress-value {
+  background: var(--red);
+}
+
+.track-row[data-state="error"] .track-progress::-moz-progress-bar {
   background: var(--red);
 }
 

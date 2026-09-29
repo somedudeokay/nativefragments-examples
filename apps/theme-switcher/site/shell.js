@@ -4,7 +4,7 @@ import {
   STORAGE_KEY,
   themeRootCss,
   themeScriptAllowList,
-} from "../public/app/theme-model.js";
+} from "../client/theme-model.js";
 
 const persistedThemeScript = () => {
   const allowList = jsonScript(themeScriptAllowList());
@@ -28,7 +28,7 @@ const head = ({ meta }) => html`
   <script>${raw(persistedThemeScript())}</script>
   <style>${raw(themeRootCss())}</style>
   <link rel="stylesheet" href="/app/styles.css" />
-  <script type="module" src="/app/client.js"></script>
+  <script type="module" src="/build/client.js"></script>
 `;
 
 export const shell = ({ body, meta }) => html`<!doctype html>

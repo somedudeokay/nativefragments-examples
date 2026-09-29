@@ -11,7 +11,7 @@ export const shell = ({ body, meta }) => html`<!doctype html>
     <link rel="canonical" href="${meta.canonical}" />
     <meta name="color-scheme" content="light" />
     <link rel="stylesheet" href="/app/styles.css" />
-    <script type="module" src="/app/client.js"></script>
+    <script type="module" src="/build/client.js"></script>
   </head>
   <body>
     <main id="content-slot">${body}</main>

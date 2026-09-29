@@ -1,0 +1,18 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "nativefragments-todo-app",
+  "main": ".nativefragments/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "enable_request_signal"],
+  "routes": [
+    { "pattern": "todo-app.nativefragments.org", "custom_domain": true }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "build": {
+    "command": "node ../../scripts/build-app.mjs",
+    "watch_dir": ["worker.js", "site", "client"]
+  }
+}

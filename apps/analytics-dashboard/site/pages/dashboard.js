@@ -1,15 +1,12 @@
-import {
-  declarativeShadow,
-  fragment,
-  html,
-} from "@nativefragments/core/server";
+import { fragment, html } from "@nativefragments/core/server";
+import { renderLit } from "@nativefragments/lit/server";
+import { html as lit } from "lit";
+import "../../client/components/analytics-board.js";
 import {
   SECTIONS,
-  analyticsBoardStyles,
-  renderAnalyticsBoard,
   resolveDashboardState,
   sectionForPath,
-} from "../../public/app/components/analytics-board-template.js";
+} from "../../client/components/analytics-board-template.js";
 
 const navLink = ({ section, active }) => html`<a
   class="section-link"
@@ -22,21 +19,18 @@ const navLink = ({ section, active }) => html`<a
   <span class="section-name">${section.navLabel}</span>
 </a>`;
 
-const dashboardPanel = ({ section }) => {
+const dashboardPanel = async ({ section }) => {
   const state = resolveDashboardState({
     range: "30d",
     section: section.id,
     segment: "all",
   });
 
-  return html`<analytics-board
-    data-range="${state.range.id}"
-    data-section="${state.section.id}"
-    data-segment="${state.segment.id}"
-  >${declarativeShadow({
-    styles: [analyticsBoardStyles],
-    html: renderAnalyticsBoard(state),
-  })}</analytics-board>`;
+  return renderLit(lit`<analytics-board
+    data-range=${state.range.id}
+    data-section=${state.section.id}
+    data-segment=${state.segment.id}
+  ></analytics-board>`);
 };
 
 export const dashboardFragment = fragment("dashboard-panel", ({ url }) =>
@@ -45,7 +39,7 @@ export const dashboardFragment = fragment("dashboard-panel", ({ url }) =>
 
 export { sectionForPath };
 
-export const dashboardPage = ({ section }) => html`<main class="app-shell">
+export const dashboardPage = async ({ section }) => html`<main class="app-shell">
   <aside class="sidebar" aria-label="Dashboard sections">
     <a class="brand" href="/" ${dashboardFragment.prefetchAttrs("load")}>
       <span class="brand-mark" aria-hidden="true"></span>
@@ -89,7 +83,7 @@ export const dashboardPage = ({ section }) => html`<main class="app-shell">
       class="dashboard-panel"
       ${dashboardFragment.attrs()}
     >
-      ${dashboardPanel({ section })}
+      ${await dashboardPanel({ section })}
     </section>
   </section>
 </main>`;

@@ -4,6 +4,7 @@
 //
 //   node scripts/serve-app.mjs --app=todo-app --port=8799
 import { createServer } from "node:http";
+import { createNodeHandler } from "@nativefragments/create-app/http";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -56,29 +57,7 @@ const env = {
 };
 const ctx = { waitUntil() {}, passThroughOnException() {} };
 
-const server = createServer(async (req, res) => {
-  try {
-    const hasBody = req.method !== "GET" && req.method !== "HEAD";
-    let body;
-    if (hasBody) {
-      const chunks = [];
-      for await (const chunk of req) chunks.push(chunk);
-      body = chunks.length ? Buffer.concat(chunks) : undefined;
-    }
-    const request = new Request(`http://127.0.0.1:${port}${req.url}`, {
-      method: req.method,
-      headers: req.headers,
-      body,
-    });
-    const response = await worker.fetch(request, env, ctx);
-    res.statusCode = response.status;
-    response.headers.forEach((v, k) => res.setHeader(k, v));
-    res.end(Buffer.from(await response.arrayBuffer()));
-  } catch (err) {
-    res.statusCode = 500;
-    res.end(String(err?.stack ?? err));
-  }
-});
+const server = createServer(createNodeHandler(request => worker.fetch(request, env, ctx)));
 
 server.listen(port, "127.0.0.1", () => {
   console.log(`serving ${app} at http://127.0.0.1:${port}`);

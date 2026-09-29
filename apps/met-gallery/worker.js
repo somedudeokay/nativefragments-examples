@@ -10,7 +10,7 @@ const app = createCloudflareHandler({
       "object-src 'none'",
       "frame-ancestors 'none'",
       `script-src 'self' 'nonce-${nonce}'`,
-      "style-src 'self'",
+      `style-src 'self' 'nonce-${nonce}'`,
       "img-src 'self' data: https://www.artic.edu",
     ].join("; "),
   routes,

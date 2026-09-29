@@ -1,6 +1,6 @@
 {
   "name": "nativefragments-examples",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -11,7 +11,25 @@
     "deploy": "node scripts/run-each.mjs deploy",
     "test": "node scripts/run-each.mjs test",
     "test:router": "node scripts/router-smoke.mjs",
+    "test:browser": "node scripts/browser-app-smoke.mjs",
     "update-worker-search-data": "node scripts/update-worker-search-data.mjs",
-    "update-screenshots": "node scripts/update-screenshots.mjs"
+    "update-screenshots": "node scripts/update-screenshots.mjs",
+    "test:streaming": "playwright test",
+    "eval:streaming": "playwright test --repeat-each=5",
+    "test:production": "node scripts/production-smoke.mjs"
+  },
+  "dependencies": {
+    "@nativefragments/core": "https://github.com/somedudeokay/nativefragments/releases/download/v0.8.0/nativefragments-core-0.8.0.tgz",
+    "@nativefragments/lit": "https://github.com/somedudeokay/nativefragments/releases/download/v0.8.0/nativefragments-lit-0.1.1.tgz",
+    "lit": "3.3.3"
+  },
+  "devDependencies": {
+    "@nativefragments/create-app": "https://github.com/somedudeokay/nativefragments/releases/download/v0.8.0/nativefragments-create-app-0.7.0.tgz",
+    "@playwright/test": "^1.63.0",
+    "esbuild": "^0.25.0",
+    "wrangler": "^4.143.0"
+  },
+  "overrides": {
+    "undici": "^7.29.1"
   }
 }

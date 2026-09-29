@@ -1,5 +1,5 @@
 import { redirect, route } from "@nativefragments/core/server";
-import { titleForFilter } from "../public/app/model/todo-state.js";
+import { titleForFilter } from "../client/model/todo-state.js";
 import { todoPage } from "./pages/todo.js";
 
 const origin = "https://todo-app.nativefragments.org";

@@ -9,7 +9,7 @@ const head = ({ meta }) => html`
   <script>
     document.documentElement.classList.add("js");
   </script>
-  <script type="module" src="/app/client.js"></script>
+  <script type="module" src="/build/client.js"></script>
 `;
 
 export const shell = ({ body, meta }) => html`<!doctype html>

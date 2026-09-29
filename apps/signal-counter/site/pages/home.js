@@ -1,18 +1,17 @@
-import { html, raw } from "@nativefragments/core/server";
+import { html } from "@nativefragments/core/server";
 import { createCounterState } from "../models/counter.js";
-import { signalCounterElement } from "../templates/signal-counter.js";
+import { litCounterElement } from "../templates/signal-counter.js";
 
-export const homePage = () => {
+export const homePage = async () => {
   const counter = createCounterState();
 
   return html`<div class="page">
     <header class="masthead" aria-labelledby="page-title">
-      <p class="eyebrow">Signal Counter</p>
-      <h1 id="page-title">A reactive instrument<span> wired straight to the DOM.</span></h1>
+      <p class="eyebrow">Lit Counter</p>
+      <h1 id="page-title">A reactive instrument<span> streamed as explicit HTML.</span></h1>
       <p class="lede">
-        Server-rendered Shadow DOM hydrated by a custom element. Tiny signals
-        bind a value, its derived readings, and a history feed to the panel —
-        no virtual DOM, no compiler, no client render pass.
+        Lit renders the custom element on the Worker and hydrates the same
+        shadow root in the browser. No framework compiler is involved.
       </p>
       <dl class="facts" aria-label="Demo constraints">
         <div>
@@ -21,36 +20,35 @@ export const homePage = () => {
         </div>
         <div>
           <dt>UI</dt>
-          <dd>Custom Element</dd>
+          <dd>Lit element</dd>
         </div>
         <div>
           <dt>Build</dt>
-          <dd>None</dd>
+          <dd>esbuild</dd>
         </div>
       </dl>
     </header>
 
     <section class="demo-stage" aria-label="Interactive signal counter demo">
-      ${signalCounterElement(counter)}
+      ${await litCounterElement(counter)}
     </section>
 
     <section class="notes" aria-label="Implementation notes">
       <article>
         <h2>What it demonstrates</h2>
         <p>
-          A click updates one small signal store. The value, its
+          A click updates one small component state. The value, its
           <em>doubled</em>, <em>parity</em> and <em>distance</em> derivations,
           the gauge, button states and the history feed all recompute and patch
-          their own nodes — only the parts that changed.
+          together through Lit's declarative render cycle.
         </p>
       </article>
       <article>
         <h2>Hydration path</h2>
         <p>
-          The Worker emits the element with declarative Shadow DOM. In the
-          browser, the Native Fragments helper adopts that exact shadow root,
-          then attaches listeners and subscriptions — so first paint and
-          interactive markup are identical.
+          The Worker emits Lit's hydratable declarative Shadow DOM. The browser
+          resumes that exact tree and attaches listeners without replacing the
+          server-rendered first paint.
         </p>
       </article>
     </section>

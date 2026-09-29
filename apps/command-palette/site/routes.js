@@ -1,8 +1,7 @@
-import { declarativeShadow, html, route } from "@nativefragments/core/server";
-import {
-  paletteHtml,
-  paletteStyles,
-} from "../public/app/components/command-palette-template.js";
+import { html, route } from "@nativefragments/core/server";
+import { renderLit } from "@nativefragments/lit/server";
+import { html as lit } from "lit";
+import "../client/components/command-palette.js";
 
 const origin = "https://command-palette.nativefragments.org";
 
@@ -40,14 +39,13 @@ const backdrop = () => html`<div class="stage-app" aria-hidden="true">
   </div>
 </div>`;
 
-const homePage = () => html`<section class="stage">
+const homePage = async () => html`<section class="stage">
   <div class="stage-bar">
     <p class="eyebrow">Command Palette</p>
     <h1>Every action, one keystroke away.</h1>
     <p class="lede">
-      A ⌘K palette built as a single custom element — server-rendered with
-      Declarative Shadow DOM, then hydrated by a small browser module using
-      platform keyboard events.
+      A ⌘K palette built as a Lit custom element — streamed as HTML, then
+      hydrated for platform keyboard events.
     </p>
   </div>
 
@@ -55,10 +53,7 @@ const homePage = () => html`<section class="stage">
     ${backdrop()}
 
     <div class="scrim">
-      <command-palette>${declarativeShadow({
-        styles: [paletteStyles],
-        html: paletteHtml(),
-      })}</command-palette>
+      ${await renderLit(lit`<command-palette></command-palette>`)}
       <p class="scrim-note">
         Press <kbd>/</kbd> to focus the field · type to filter · <kbd>↑</kbd>
         <kbd>↓</kbd> to move the selection.

@@ -4,7 +4,7 @@ import {
   commands,
   paletteHtml,
   searchCommands,
-} from "../public/app/components/command-palette-template.js";
+} from "../client/components/command-palette-template.js";
 
 test("empty command search returns every command", () => {
   assert.equal(searchCommands("").length, commands.length);

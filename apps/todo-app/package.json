@@ -4,15 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npx wrangler dev",
-    "deploy": "npx wrangler deploy",
+    "build": "node ../../scripts/build-app.mjs",
+    "dev": "wrangler dev --live-reload",
+    "deploy": "NODE_ENV=production wrangler deploy",
     "test": "node --test test/*.test.js",
-    "check": "node --test test/*.test.js && node --check worker.js && find site public/app test -name '*.js' -print0 | xargs -0 -n1 node --check"
+    "check": "npm run build && node --test test/*.test.js && find site client test -name '*.js' -print0 | xargs -0 -n1 node --check"
   },
   "dependencies": {
-    "@nativefragments/core": "^0.6.0"
-  },
-  "devDependencies": {
-    "@web/test-runner": "^0.20.2"
+    "@nativefragments/core": "^0.8.0",
+    "@nativefragments/lit": "^0.1.0",
+    "lit": "3.3.3"
   }
 }

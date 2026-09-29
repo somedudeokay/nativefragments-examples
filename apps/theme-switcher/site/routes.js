@@ -15,7 +15,7 @@ export const routes = [
       meta(
         "/",
         "Theme Switcher",
-        "A zero-build Native Fragments demo showing CSS custom properties shared across light DOM and Shadow DOM.",
+        "A Native Fragments and Lit demo showing CSS custom properties shared across light DOM and Shadow DOM.",
       ),
     render: themeSwitcherPage,
   }),

@@ -1,15 +1,7 @@
-import { declarativeShadow, html } from "@nativefragments/core/server";
+import { renderLit } from "@nativefragments/lit/server";
+import { html } from "lit";
+import "../../client/components/lit-counter.js";
 import { createCounterState } from "../models/counter.js";
-import {
-  counterStyles,
-  renderCounterShadow,
-} from "../../public/app/components/signal-counter-template.js";
 
-export const signalCounterElement = (state = createCounterState()) => html`
-  <signal-counter count="${state.count}" step="${state.step}">
-    ${declarativeShadow({
-      styles: [counterStyles],
-      html: renderCounterShadow(state),
-    })}
-  </signal-counter>
-`;
+export const litCounterElement = (state = createCounterState()) =>
+  renderLit(html`<lit-counter count=${state.count} step=${state.step}></lit-counter>`);

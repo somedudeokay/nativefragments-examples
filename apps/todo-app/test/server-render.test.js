@@ -5,18 +5,18 @@ import { shell } from "../site/shell.js";
 import { todoPage } from "../site/pages/todo.js";
 import { routes } from "../site/routes.js";
 
-test("server renders the initially visible custom element shadow dom", () => {
-  const body = String(todoPage({
+test("server renders the initially visible custom element shadow dom", async () => {
+  const body = String(await todoPage({
     url: new URL("https://todo-app.nativefragments.org/active"),
   }));
 
-  assert.match(body, /<todo-app data-filter="active">/);
-  assert.match(body, /<template shadowrootmode="open">/);
+  assert.match(body, /<todo-app\s+data-filter="active"/);
+  assert.match(body, /<template shadowroot="open" shadowrootmode="open">/);
   assert.match(body, /Server rendered\. Edits save in this browser\./);
-  assert.match(body, /data-todo-state/);
+  assert.match(body, /data-state=/);
 });
 
-test("shell includes the fragment mount and zero-build browser modules", () => {
+test("shell includes the fragment mount and built browser module", () => {
   const html = String(shell({
     body: raw("<todo-app></todo-app>"),
     meta: {
@@ -28,7 +28,7 @@ test("shell includes the fragment mount and zero-build browser modules", () => {
 
   assert.match(html, /<main id="content-slot"><todo-app><\/todo-app><\/main>/);
   assert.match(html, /href="\/app\/styles.css"/);
-  assert.match(html, /src="\/app\/client.js"/);
+  assert.match(html, /src="\/build\/client.js"/);
 });
 
 test("route manifest exposes all filter fallbacks", () => {

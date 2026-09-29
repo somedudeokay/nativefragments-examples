@@ -191,7 +191,7 @@ const headLinks = ({ meta }) => html`
     onload="this.onload=null;this.rel='stylesheet'"
   />
   <noscript><link rel="stylesheet" href="/app/styles.css" /></noscript>
-  <script type="module" src="/app/client.js"></script>
+  <script type="module" src="/build/client.js"></script>
 `;
 
 export const shell = ({ body, meta }) => html`<!doctype html>

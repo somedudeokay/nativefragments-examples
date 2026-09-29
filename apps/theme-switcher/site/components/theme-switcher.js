@@ -1,18 +1,7 @@
-import { declarativeShadow, html } from "@nativefragments/core/server";
-import { DEFAULT_THEME, THEMES } from "../../public/app/theme-model.js";
-import {
-  themeSwitcherHtml,
-  themeSwitcherStyles,
-} from "../../public/app/components/theme-switcher-template.js";
+import { renderLit } from "@nativefragments/lit/server";
+import { html } from "lit";
+import "../../client/components/theme-switcher.js";
+import { DEFAULT_THEME } from "../../client/theme-model.js";
 
-export const themeSwitcher = () => html`<theme-switcher
-  data-default-theme="${DEFAULT_THEME}"
->
-  ${declarativeShadow({
-    styles: [themeSwitcherStyles],
-    html: themeSwitcherHtml({
-      selectedTheme: DEFAULT_THEME,
-      themes: THEMES,
-    }),
-  })}
-</theme-switcher>`;
+export const themeSwitcher = () =>
+  renderLit(html`<theme-switcher data-default-theme=${DEFAULT_THEME}></theme-switcher>`);

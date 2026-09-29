@@ -1,18 +1,11 @@
-import {
-  declarativeShadow,
-  html,
-  jsonScript,
-  raw,
-} from "@nativefragments/core/server";
+import { renderLit } from "@nativefragments/lit/server";
+import { html } from "lit";
+import "../../client/components/todo-app.js";
 import {
   addTask,
   createInitialState,
   filterFromPath,
-} from "../../public/app/model/todo-state.js";
-import {
-  renderTodoAppShadow,
-  todoAppStyles,
-} from "../../public/app/components/todo-app-template.js";
+} from "../../client/model/todo-state.js";
 
 export const todoPage = ({ url } = { url: new URL("https://todo-app.nativefragments.org/") }) => {
   const filter = filterFromPath(url.pathname);
@@ -22,15 +15,8 @@ export const todoPage = ({ url } = { url: new URL("https://todo-app.nativefragme
     ? addTask(initialState, added, { now: url.searchParams.get("addedAt") ?? Date.now() })
     : initialState;
 
-  return html`<todo-app data-filter="${filter}">
-    ${declarativeShadow({
-      styles: [todoAppStyles],
-      html: renderTodoAppShadow(state, {
-        message: added
-          ? "Server handled the POST. Edits save in this browser once JavaScript loads."
-          : "Server rendered. Edits save in this browser.",
-      }),
-    })}
-    <script type="application/json" data-todo-state>${raw(jsonScript(state))}</script>
-  </todo-app>`;
+  return renderLit(html`<todo-app
+    data-filter=${filter}
+    data-state=${JSON.stringify(state)}
+  ></todo-app>`);
 };

@@ -5,8 +5,7 @@ import {
   counterConfig,
   counterView,
   createCounterState,
-} from "../public/app/components/counter-model.js";
-import { computed, signal } from "../public/app/components/tiny-signals.js";
+} from "../client/components/counter-model.js";
 
 describe("counter model", () => {
   it("clamps initial count and step", () => {
@@ -55,21 +54,5 @@ describe("counter model", () => {
     assert.equal(view.canDecrement, true);
     assert.equal(view.canIncrement, true);
     assert.equal(view.historyLabel, "0, -2, -6");
-  });
-});
-
-describe("tiny signals", () => {
-  it("notifies subscribers and updates computed values", () => {
-    const count = signal(1);
-    const doubled = computed([count], () => count.value * 2);
-    const values = [];
-    const cleanup = doubled.subscribe((value) => values.push(value));
-
-    count.value = 2;
-    count.value = 4;
-
-    assert.deepEqual(values, [2, 4, 8]);
-    cleanup();
-    doubled.dispose();
   });
 });

@@ -1,0 +1,127 @@
+{
+  "date": "2026-09-29",
+  "core": "0.8.0",
+  "examples": "0.2.0",
+  "nodeTests": 52,
+  "coreStreamingEvaluation": {
+    "startTime": "2026-09-29T10:13:18.939Z",
+    "duration": 16090.716,
+    "expected": 60,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "galleryFinalBrowserSuite": {
+    "startTime": "2026-09-29T10:14:58.015Z",
+    "duration": 11847.208,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "galleryRepeatedEvaluation": {
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "source": "Local five-repeat run; CI uploads its own JSON and traces"
+  },
+  "production": [
+    {
+      "url": "https://nativefragments.org",
+      "status": 200,
+      "title": "Fast applications. Explicit HTML. · Native Fragments",
+      "pageErrors": []
+    },
+    {
+      "url": "https://docs.nativefragments.org",
+      "status": 200,
+      "title": "Introduction · Native Fragments Docs",
+      "pageErrors": []
+    },
+    {
+      "url": "https://task-board.nativefragments.org/login",
+      "status": 200,
+      "title": "Fieldwork · Private tasks",
+      "pageErrors": []
+    },
+    {
+      "url": "https://analytics-dashboard.nativefragments.org",
+      "status": 200,
+      "title": "Overview · Analytics Dashboard · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://nested-routes.nativefragments.org",
+      "status": 200,
+      "title": "Profile · Nested Routes Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://todo-app.nativefragments.org",
+      "status": 200,
+      "title": "Todo App · Native Fragments Todo Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://theme-switcher.nativefragments.org",
+      "status": 200,
+      "title": "Theme Switcher - Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://lit-counter.nativefragments.org",
+      "status": 200,
+      "title": "Lit state on streamed server HTML - Lit Counter - Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://worker-search.nativefragments.org",
+      "status": 200,
+      "title": "Worker Search · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://worker-api.nativefragments.org",
+      "status": 200,
+      "title": "Worker API · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://form-wizard.nativefragments.org",
+      "status": 200,
+      "title": "Form Wizard · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://activity-feed.nativefragments.org",
+      "status": 200,
+      "title": "Activity Feed · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://content-site.nativefragments.org",
+      "status": 200,
+      "title": "NF Notes · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://command-palette.nativefragments.org",
+      "status": 200,
+      "title": "Command Palette · Native Fragments Demo",
+      "pageErrors": []
+    },
+    {
+      "url": "https://met-gallery.nativefragments.org",
+      "status": 200,
+      "title": "Collection Control · Native Fragments Stream",
+      "pageErrors": []
+    }
+  ],
+  "notes": [
+    "Museum data is stubbed only in local/CI tests; production smoke uses live upstream data.",
+    "The provenance feed intentionally renders its error boundary.",
+    "D1 production recovery/mutation flow passed; its test task was removed.",
+    "npm publish is pending credential renewal; dependencies use public GitHub release tarballs with locked integrity."
+  ]
+}

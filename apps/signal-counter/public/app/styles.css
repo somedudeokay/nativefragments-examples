@@ -131,7 +131,7 @@ h1 span {
   width: 100%;
 }
 
-.demo-stage signal-counter {
+.demo-stage lit-counter {
   display: block;
 }
 

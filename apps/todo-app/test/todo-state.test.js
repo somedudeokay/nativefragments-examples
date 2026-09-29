@@ -12,7 +12,7 @@ import {
   serializeState,
   toggleTask,
   visibleTasks,
-} from "../public/app/model/todo-state.js";
+} from "../client/model/todo-state.js";
 
 test("adds trimmed tasks to the front and advances local ids", () => {
   const state = createInitialState({ tasks: [], nextId: 7 });

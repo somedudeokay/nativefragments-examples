@@ -6,22 +6,21 @@ const head = ({ meta }) => html`
   <link rel="canonical" href="${meta.canonical}" />
   <meta name="theme-color" content="#f4f1ea" />
   <link rel="stylesheet" href="/app/styles.css" />
-  <script type="module" src="/app/client.js"></script>
+  <script type="module" src="/build/client.js"></script>
 `;
 
 /**
  * Live stream-timeline telemetry. Records when each deferred fragment's
  * placeholder flips to ready/error (the reveal bootstrap sets
  * `data-fragment-state`) and paints the matching timeline row with its
- * client-perceived arrival time. Exposes `__nfStreamMarkBuffered` so client-side
- * navigation (buffered fragments, no live stream) can refresh the dock. Pure
- * enhancement — the page is complete and crawlable without it. Carries the CSP
- * nonce so it survives a strict policy.
+ * client-perceived arrival time. Explicit lifecycle events reset navigation and
+ * report completed reveals, including instant cache replay. Pure enhancement — the page is complete and
+ * crawlable without it. Carries the CSP nonce so it survives a strict policy.
  */
 const timelineScript = (nonce) => {
   return html`<script${attrs({ nonce })}>
 (() => {
-  const start = performance.now();
+  let start = performance.now();
   const MAX = 1500;
   const fragmentRows = () =>
     document.querySelectorAll('[data-timeline-slot]:not([data-timeline-slot="shell"])');
@@ -40,37 +39,44 @@ const timelineScript = (nonce) => {
     row.dataset.state = state;
     const time = row.querySelector(".track-time");
     if (time) time.textContent = "+" + ms + "ms";
-    const fill = row.querySelector(".track-fill");
-    if (fill) fill.style.width = Math.max(3, Math.min(100, Math.round((ms / MAX) * 100))) + "%";
+    const progress = row.querySelector(".track-progress");
+    if (progress) progress.value = Math.max(45, Math.min(MAX, ms));
     updateDock();
   };
-  // Client navigation swaps in already-resolved (buffered) fragments, so reflect
-  // their final state in the dock instead of leaving stale first-load timings.
-  window.__nfStreamMarkBuffered = () => {
+  const resetDock = () => {
+    start = performance.now();
     for (const row of fragmentRows()) {
-      const slot = row.getAttribute("data-timeline-slot");
-      const el = document.querySelector('[data-fragment-slot="' + slot + '"]');
-      row.dataset.state = el?.getAttribute("data-fragment-state") === "error" ? "error" : "ready";
+      row.dataset.state = "pending";
       const time = row.querySelector(".track-time");
-      if (time) time.textContent = "buffered";
-      const fill = row.querySelector(".track-fill");
-      if (fill) fill.style.width = "100%";
+      if (time) time.textContent = "streaming…";
+      const progress = row.querySelector(".track-progress");
+      if (progress) progress.value = 0;
     }
     updateDock();
   };
-  new MutationObserver((records) => {
-    for (const record of records) {
-      const el = record.target;
-      if (el.nodeType !== 1 || !el.hasAttribute("data-fragment-slot")) continue;
-      const state = el.getAttribute("data-fragment-state");
-      if (state === "ready" || state === "error") {
-        paint(el.getAttribute("data-fragment-slot"), state, Math.round(performance.now() - start));
-      }
-    }
-  }).observe(document.documentElement, {
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["data-fragment-state"],
+  let streamed = true;
+  let activeNavigation;
+  document.addEventListener("nativefragments:navigation-start", event => {
+    if (event.detail.slot) return;
+    activeNavigation = event.detail.id;
+    resetDock();
+  });
+  document.addEventListener("nativefragments:navigation-swap", event => {
+    if (event.detail.slot) return;
+    streamed = event.detail.streaming;
+    const note = document.querySelector(".track-note");
+    if (note) note.textContent = streamed
+      ? "One connection · out of order, fastest first"
+      : "Completed response · cached or buffered";
+  });
+  document.addEventListener("nativefragments:fragment-reveal", event => {
+    const { target, state } = event.detail;
+    paint(target.getAttribute("data-fragment-slot"), state, Math.round(performance.now() - start));
+  });
+  document.addEventListener("nativefragments:navigation-abort", event => {
+    if (event.detail.id !== activeNavigation) return;
+    const note = document.querySelector(".track-note");
+    if (note) note.textContent = "Navigation interrupted";
   });
 })();
 </script>`;
@@ -97,8 +103,12 @@ const timelineRow = (row) => html`<li
 >
   <span class="track-label">${row.label}</span>
   <span class="track-bar"
-    ><span class="track-fill" style="width: ${row.state === "ready" ? "3%" : "0"}"></span
-  ></span>
+    ><progress
+      class="track-progress"
+      max="1500"
+      value="${row.state === "ready" ? "45" : "0"}"
+      aria-hidden="true"
+    ></progress></span>
   <span class="track-time">${row.time ?? "streaming…"}</span>
 </li>`;
 

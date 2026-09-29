@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createCloudflareHandler } from "@nativefragments/core/cloudflare";
-import { html, redirect, route } from "@nativefragments/core/server";
+import { fragment, html, redirect, route } from "@nativefragments/core/server";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = new Map(
@@ -22,9 +22,13 @@ const appPort = Number(args.get("app-port") ?? process.env.ROUTER_SMOKE_APP_PORT
 const browserPort = Number(args.get("browser-port") ?? process.env.ROUTER_SMOKE_DEBUG_PORT ?? 9239);
 const origin = `http://127.0.0.1:${appPort}`;
 const chromeBin = args.get("chrome") ?? process.env.CHROME_BIN;
-const routerPath = join(root, "apps/form-wizard/public/nativefragments/router.js");
+const routerPath = fileURLToPath(
+  import.meta.resolve("@nativefragments/core/client/router.js"),
+);
+const loaderPath = join(dirname(routerPath), "fragment-loader.js");
 let visiblePrefetches = 0;
 let nonHtmlFragmentRequests = 0;
+let streamingFragmentRequests = 0;
 
 const sleep = (ms) => new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 
@@ -168,12 +172,29 @@ const page = (title, body) => html`<section class="page">
     <a id="asset-link" href="/plain-export">Export</a>
     <a id="visible-page" href="/with-visible">Visible prefetch page</a>
     <a id="redirect-link" href="/redirect-source">Redirect</a>
+    <a id="streaming-link" href="/streaming">Streaming</a>
   </nav>
   <h1>${title}</h1>
   ${body}
 </section>`;
 
 const tallBlock = () => html`<div style="height: 1400px"></div>`;
+
+const quickStream = fragment("quick-stream", {
+  loading: () => html`<p id="quick-loading">Loading quick frame...</p>`,
+  render: async () => {
+    await sleep(90);
+    return html`<p id="quick-ready">Quick frame ready</p>`;
+  },
+});
+
+const slowStream = fragment("slow-stream", {
+  loading: () => html`<p id="slow-loading">Loading slow frame...</p>`,
+  render: async () => {
+    await sleep(260);
+    return html`<p id="slow-ready">Slow frame ready</p>`;
+  },
+});
 
 const routes = [
   route("/", {
@@ -213,6 +234,13 @@ const routes = [
   route("/final", {
     render: () => page("Final", html`${tallBlock()}<h2 id="done">Redirect target</h2>`),
   }),
+  route("/streaming", {
+    render: (context) => page("Streaming", html`
+      <div id="quick-boundary">${context.defer(quickStream)}</div>
+      <div id="slow-boundary">${context.defer(slowStream)}</div>
+    `),
+    fragments: [quickStream, slowStream],
+  }),
 ];
 
 const shell = ({ body, meta }) => html`<!doctype html>
@@ -222,14 +250,21 @@ const shell = ({ body, meta }) => html`<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${meta.title || "Router smoke"}</title>
     <script type="module">
-      import { installFragmentNavigation } from "/nativefragments/router.js";
-      window.__nfAfter = [];
-      installFragmentNavigation({
+      import { startRouter } from "/nativefragments/router.js";
+      window.__nfEvents = [];
+      for (const type of ["navigation-start", "navigation-swap", "fragment-reveal", "navigation-complete", "navigation-abort", "navigation-error"]) {
+        document.addEventListener("nativefragments:" + type, (event) => {
+          window.__nfEvents.push({
+            fragmentId: event.detail.fragmentId ?? null,
+            state: event.detail.state ?? null,
+            type,
+            url: event.detail.url.href,
+          });
+        });
+      }
+      window.__router = startRouter({
         prefetch: "none",
         viewTransitions: false,
-        afterNavigate(event) {
-          window.__nfAfter.push({ href: event.url.href, slot: event.slot });
-        },
       });
     </script>
   </head>
@@ -249,8 +284,18 @@ const env = {
   ASSETS: {
     async fetch(request) {
       const url = new URL(request.url);
+      if (["/nativefragments/dom.js", "/nativefragments/navigation.js"].includes(url.pathname)) {
+        return new Response(readFileSync(join(dirname(routerPath), url.pathname.split("/").at(-1))), {
+          headers: { "Content-Type": MIME[".js"] },
+        });
+      }
       if (url.pathname === "/nativefragments/router.js") {
         return new Response(readFileSync(routerPath), {
+          headers: { "Content-Type": MIME[".js"] },
+        });
+      }
+      if (url.pathname === "/nativefragments/fragment-loader.js") {
+        return new Response(readFileSync(loaderPath), {
           headers: { "Content-Type": MIME[".js"] },
         });
       }
@@ -298,10 +343,27 @@ const server = createServer(async (req, res) => {
     ) {
       nonHtmlFragmentRequests += 1;
     }
+    if (
+      request.headers.get("x-fragment") === "true" &&
+      new URL(request.url).pathname === "/streaming"
+    ) {
+      streamingFragmentRequests += 1;
+      assert.equal(request.headers.get("x-nativefragments-protocol"), "2");
+    }
     const response = await app.fetch(request, env, ctx);
     res.statusCode = response.status;
     response.headers.forEach((value, key) => res.setHeader(key, value));
-    res.end(Buffer.from(await response.arrayBuffer()));
+    if (!response.body) {
+      res.end();
+      return;
+    }
+    const reader = response.body.getReader();
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      res.write(Buffer.from(chunk.value));
+    }
+    res.end();
   } catch (error) {
     res.statusCode = 500;
     res.end(String(error?.stack ?? error));
@@ -350,7 +412,7 @@ const run = async () => {
 
     await evalInPage(session, "document.getElementById('same-hash').click()");
     await waitFor(() => evalInPage(session, "location.hash === '#anchor-target'"), "hash link did not update hash");
-    assert.equal(await evalInPage(session, "window.__nfAfter.length"), 0);
+    assert.equal(await evalInPage(session, "window.__nfEvents.length"), 0);
     assert.ok(await evalInPage(session, "window.scrollY > 500"));
 
     await evalInPage(session, "history.back()");
@@ -377,6 +439,21 @@ const run = async () => {
     await waitFor(() => evalInPage(session, "location.pathname === '/page'"), "back did not restore previous route");
     assert.ok(await evalInPage(session, "Math.abs(window.scrollY - 321) < 80"));
 
+    await navigateDocument(session, origin, "cache regression setup failed");
+    await evalInPage(session, "window.__router.prefetch('/page#first')");
+    const cancelled = await evalInPage(session, `window.__router.navigate('/page#second', {
+      signal: AbortSignal.abort(),
+    }).then(() => 'resolved', (error) => error.name)`);
+    assert.equal(cancelled, "AbortError");
+    assert.equal(await evalInPage(session, "location.pathname"), "/");
+    assert.equal(await evalInPage(session, "document.querySelector('h1').textContent"), "Router smoke");
+    assert.deepEqual(await evalInPage(session, "window.__nfEvents.map((event) => event.type)"), [
+      "navigation-start", "navigation-abort",
+    ]);
+    await evalInPage(session, "window.__router.navigate('/page#deep-target')");
+    assert.equal(await evalInPage(session, "location.hash"), "#deep-target");
+    assert.ok(await evalInPage(session, "window.scrollY > 500"));
+
     await navigateDocument(session, origin, "home reload failed");
     await evalInPage(session, "document.querySelector('#search-form input').value = 'query smoke'");
     await evalInPage(session, "document.getElementById('search-form').requestSubmit(document.querySelector('#search-form button'))");
@@ -389,6 +466,48 @@ const run = async () => {
     assert.ok(await evalInPage(session, "window.scrollY > 500"));
 
     await navigateDocument(session, origin, "home reload failed");
+    await evalInPage(session, "document.getElementById('streaming-link').click()");
+    await waitFor(
+      () => evalInPage(session, "Boolean(document.getElementById('slow-loading'))"),
+      "streaming navigation did not render its loading frame",
+    );
+    assert.equal(
+      await evalInPage(session, "document.getElementById('content-slot').getAttribute('aria-busy')"),
+      "true",
+    );
+    assert.equal(await evalInPage(session, "Boolean(document.getElementById('slow-ready'))"), false);
+    await waitFor(
+      () => evalInPage(session, "Boolean(document.getElementById('quick-ready'))"),
+      "quick deferred frame did not reveal",
+    );
+    await waitFor(
+      () => evalInPage(session, "Boolean(document.getElementById('slow-ready'))"),
+      "slow deferred frame did not reveal",
+    );
+    await waitFor(
+      () => evalInPage(session, "window.__nfEvents.some((event) => event.type === 'navigation-complete')"),
+      "streaming navigation did not complete",
+    );
+    assert.deepEqual(
+      await evalInPage(
+        session,
+        "window.__nfEvents.map((event) => event.type + (event.fragmentId ? ':' + event.fragmentId.split('-').slice(0, 2).join('-') : ''))",
+      ),
+      [
+        "navigation-start",
+        "navigation-swap",
+        "fragment-reveal:nf-quick",
+        "fragment-reveal:nf-slow",
+        "navigation-complete",
+      ],
+    );
+    assert.equal(
+      await evalInPage(session, "document.getElementById('content-slot').hasAttribute('aria-busy')"),
+      false,
+    );
+    assert.equal(streamingFragmentRequests, 1);
+
+    await navigateDocument(session, origin, "home reload failed");
     await evalInPage(session, "document.getElementById('asset-link').click()");
     await waitFor(
       () => evalInPage(session, "location.pathname === '/plain-export'"),
@@ -398,7 +517,7 @@ const run = async () => {
         session,
         `JSON.stringify({
           href: location.href,
-          afterNavigate: window.__nfAfter?.length ?? null,
+          navigationEvents: window.__nfEvents?.length ?? null,
           body: document.body.textContent.slice(0, 120),
           nonHtmlFragmentRequests: ${nonHtmlFragmentRequests}
         })`,

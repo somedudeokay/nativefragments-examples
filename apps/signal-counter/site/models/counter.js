@@ -3,4 +3,4 @@ export {
   counterConfig,
   counterView,
   createCounterState,
-} from "../../public/app/components/counter-model.js";
+} from "../../client/components/counter-model.js";

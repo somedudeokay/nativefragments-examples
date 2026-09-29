@@ -60,6 +60,27 @@ const appRequest = (path, headers = {}) =>
     {},
   );
 
+const readStreamText = async (reader) => {
+  const decoder = new TextDecoder();
+  let output = "";
+  while (true) {
+    const chunk = await reader.read();
+    if (chunk.done) return output;
+    output += decoder.decode(chunk.value, { stream: true });
+  }
+};
+
+const readUntil = async (reader, pattern) => {
+  const decoder = new TextDecoder();
+  let output = "";
+  while (!pattern.test(output)) {
+    const chunk = await reader.read();
+    if (chunk.done) return output;
+    output += decoder.decode(chunk.value, { stream: true });
+  }
+  return output;
+};
+
 test("streams the static shell, sticky dock, and loading placeholders before resolving", async () => {
   await withAicMock(async () => {
     const response = await appRequest("/?topic=painting&fast=1");
@@ -97,9 +118,9 @@ test("resolves multiple deferred fragments as real DOM, out of order", async () 
 
     // real DOM content, not inert templates
     assert.doesNotMatch(body, /<template data-nativefragments-deferred-fragment/);
-    assert.match(body, /data-nativefragments-deferred-content="nf-collection-stats-\d+"/);
-    assert.match(body, /data-nativefragments-deferred-content="nf-featured-object-\d+"/);
-    assert.match(body, /data-nativefragments-deferred-content="nf-artworks-\d+"/);
+    assert.match(body, /data-nativefragments-deferred-content="nf-collection-stats-\d+-[a-f0-9-]+"/);
+    assert.match(body, /data-nativefragments-deferred-content="nf-featured-object-\d+-[a-f0-9-]+"/);
+    assert.match(body, /data-nativefragments-deferred-content="nf-artworks-\d+-[a-f0-9-]+"/);
 
     // each fragment's content resolved server-side
     assert.match(body, /Artworks/); // stats tile
@@ -120,7 +141,7 @@ test("a failing fragment streams its error boundary without breaking the page", 
     // the provenance fragment errors into its boundary…
     assert.match(
       body,
-      /data-nativefragments-deferred-content="nf-provenance-feed-\d+" data-fragment-state="error"/,
+      /data-nativefragments-deferred-content="nf-provenance-feed-\d+-[a-f0-9-]+" data-fragment-state="error"/,
     );
     assert.match(body, /Provenance feed failed/);
 
@@ -138,19 +159,28 @@ test("example avoids transform-based deferred enter motion", async () => {
   assert.doesNotMatch(css, /\bscale(?:3d|X|Y)?\(/);
 });
 
-test("default-slot fragment navigation returns the buffered page (SPA nav path)", async () => {
+test("default-slot fragment navigation streams loading and resolved HTML", async () => {
   await withAicMock(async () => {
-    const response = await appRequest("/?topic=painting&fast=1", { "x-fragment": "true" });
-    const body = await response.text();
+    const response = await appRequest("/?topic=painting&fast=1", {
+      "x-fragment": "true",
+      "x-nativefragments-protocol": "2",
+    });
+    const reader = response.body.getReader();
+    const firstText = await readUntil(reader, /stats-card--loading/);
 
     assert.equal(response.status, 200);
-    assert.match(body, /Collection Control/); // header swaps in with the content
-    assert.match(body, /class="layout-grid"/);
-    assert.match(body, /Nighthawks/); // fragments resolved server-side (buffered)
-    assert.match(body, /data-fragment-meta/);
-    assert.doesNotMatch(body, /<!doctype html>/i); // a fragment, not a full document
-    assert.doesNotMatch(body, /stats-card--loading/); // buffered → no loading placeholder
-    assert.doesNotMatch(body, /data-nativefragments-deferred-content/); // inlined, not streamed
+    assert.ok(response.headers.get("X-NativeFragments-Stream"));
+    assert.match(firstText, /Collection Control/);
+    assert.match(firstText, /class="layout-grid"/);
+    assert.match(firstText, /stats-card--loading/);
+    assert.match(firstText, /data-fragment-meta/);
+    assert.doesNotMatch(firstText, /Nighthawks/);
+    assert.doesNotMatch(firstText, /<!doctype html>/i);
+
+    const rest = await readStreamText(reader);
+    assert.match(rest, /Nighthawks/);
+    assert.match(rest, /data-nativefragments-deferred-content/);
+    assert.doesNotMatch(rest, /<!doctype html>/i);
   });
 });
 
@@ -159,6 +189,7 @@ test("named fragment requests return only the completed table rows", async () =>
     const response = await appRequest("/?topic=painting&fast=1", {
       "x-fragment": "true",
       "x-fragment-slot": "artworks",
+      "x-nativefragments-protocol": "2",
     });
     const body = await response.text();
 

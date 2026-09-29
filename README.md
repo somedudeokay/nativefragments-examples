@@ -3,11 +3,11 @@
 Each directory in `apps/` is an independently deployable Cloudflare Worker demo.
 The demos are intentionally small, inspectable, and dependency-light.
 
-Dependency rule:
-
-- Runtime dependencies must be Native Fragments packages only.
-- Dev dependencies are limited to `@web/test-runner`.
-- Unit tests use `node:test`.
+Runtime dependencies are Native Fragments and optional Lit. Applications use
+standard ESM and esbuild through `@nativefragments/create-app/build`; there is no
+framework compiler. Declare additional browser worker entries explicitly in
+`package.json.nativefragments.workers`. Generated `/build/*` assets revalidate on
+each load; deployment builds remove stale maps and worker entries.
 
 Useful commands:
 
@@ -15,6 +15,8 @@ Useful commands:
 npm run check
 npm run test
 npm run test:router
+npm run test:streaming
+npm run eval:streaming
 npm run deploy
 ```
 
@@ -43,3 +45,12 @@ Refresh the Worker Search meteorite dataset from NASA Open Data:
 ```sh
 npm run update-worker-search-data
 ```
+
+See [streaming regression coverage](docs/streaming-regressions.md) for scenarios,
+evaluation output and CI. The persistent authenticated example lives in the
+[framework repository](https://github.com/somedudeokay/nativefragments/tree/main/apps/task-board)
+and runs at [Fieldwork](https://task-board.nativefragments.org).
+
+Release dependencies currently use the public GitHub 0.8 tarballs with locked
+integrity, so this checkout installs independently while npm registry publishing
+awaits a renewed credential. There are no sibling-checkout dependencies.

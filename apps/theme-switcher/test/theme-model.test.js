@@ -6,7 +6,7 @@ import {
   resolveTheme,
   themeRootCss,
   themeScriptAllowList,
-} from "../public/app/theme-model.js";
+} from "../client/theme-model.js";
 
 test("default theme resolves to a complete theme", () => {
   const theme = resolveTheme(DEFAULT_THEME);

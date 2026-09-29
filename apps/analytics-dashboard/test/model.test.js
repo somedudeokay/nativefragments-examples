@@ -4,7 +4,7 @@ import {
   renderAnalyticsBoard,
   resolveDashboardState,
   sectionForPath,
-} from "../public/app/components/analytics-board-template.js";
+} from "../client/components/analytics-board-template.js";
 
 test("sectionForPath resolves known demo routes and falls back to overview", () => {
   assert.equal(sectionForPath("/revenue").id, "revenue");

@@ -21,8 +21,8 @@ export const examples = [
   },
   {
     slug: "signal-counter",
-    title: "Signal Counter",
-    url: "https://signal-counter.nativefragments.org",
+    title: "Lit Counter",
+    url: "https://lit-counter.nativefragments.org",
   },
   {
     slug: "worker-search",

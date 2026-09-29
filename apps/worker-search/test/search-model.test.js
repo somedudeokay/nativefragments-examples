@@ -8,7 +8,7 @@ import {
   searchStats,
   visibleRows,
 } from "../site/data/search-model.js";
-import { filterRows } from "../public/app/search-core.js";
+import { filterRows } from "../client/search-core.js";
 
 const records = JSON.parse(
   readFileSync(new URL("../public/app/data/meteorites.json", import.meta.url), "utf8"),

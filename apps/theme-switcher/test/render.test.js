@@ -5,11 +5,11 @@ import {
   DEFAULT_THEME,
   STORAGE_KEY,
   THEMES,
-} from "../public/app/theme-model.js";
+} from "../client/theme-model.js";
 import {
   themeSwitcherHtml,
   themeSwitcherStyles,
-} from "../public/app/components/theme-switcher-template.js";
+} from "../client/components/theme-switcher-template.js";
 
 test("worker renders the theme switcher with declarative shadow dom", async () => {
   const response = await worker.fetch(
@@ -21,12 +21,12 @@ test("worker renders the theme switcher with declarative shadow dom", async () =
 
   assert.equal(response.status, 200);
   assert.match(body, /<theme-switcher/);
-  assert.match(body, /<template shadowrootmode="open">/);
+  assert.match(body, /<template shadowroot="open" shadowrootmode="open">/);
   assert.match(body, /data-theme-option="dawn"/);
   assert.match(body, /data-theme-option="night"/);
   assert.match(body, /data-theme-option="field"/);
   assert.match(body, /data-theme-option="contrast"/);
-  assert.match(body, /<script type="module" src="\/app\/client.js"><\/script>/);
+  assert.match(body, /<script type="module" src="\/build\/client.js"><\/script>/);
 });
 
 test("shell includes persisted-theme boot script before app css", async () => {

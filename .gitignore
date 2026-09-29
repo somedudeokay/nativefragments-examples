@@ -1,4 +1,10 @@
 node_modules/
 .wrangler/
+.nativefragments/
+public/build/
+apps/*/.nativefragments/
+apps/*/public/build/
 .DS_Store
 npm-debug.log*
+test-results/
+playwright-report/

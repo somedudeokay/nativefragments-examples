@@ -84,7 +84,7 @@ const homePage = () => {
     <h1>One Worker. Pages <em>and</em> JSON.</h1>
     <p class="lede">
       A tiny Web Standards <code>fetch</code> handler serves server-rendered HTML and
-      typed JSON from the same model — no Hono, no build step, no router dependency.
+      typed JSON from the same model — no Hono and no second router dependency.
       Every endpoint below returns live data from <code>site/model.js</code>.
     </p>
   </section>
