@@ -41,10 +41,20 @@ test("gallery streams out of order, replays cached visits and restores history",
 
 test("rapid navigation never lets cancelled gallery frames replace the final topic", async ({ page }) => {
   await page.goto("/?topic=painting&fast=1");
-  for (const topic of ["sculpture", "photograph", "textile"]) {
-    await page.locator(`a[href="/?topic=${topic}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`topic=${topic}$`));
-  }
+  // WebKit's automated click can wait for navigation-related I/O. Dispatch
+  // subsequent native link clicks from the first swap event so every engine
+  // supersedes a still-streaming response, regardless of runner speed.
+  await page.evaluate(() => new Promise(resolve => {
+    const topics = ["sculpture", "photograph", "textile"];
+    const next = () => {
+      const topic = topics.shift();
+      if (topic) document.querySelector(`a[href="/?topic=${topic}"]`).click();
+      else { document.removeEventListener("nativefragments:navigation-swap", next); resolve(); }
+    };
+    document.addEventListener("nativefragments:navigation-swap", next);
+    next();
+  }));
+  await expect(page).toHaveURL(/topic=textile$/);
   await expect(page.locator(".stream-dock")).toHaveAttribute("data-complete", "true");
   await expect(page.locator(".object-table tbody")).toContainText("Textile fixture");
   await expect(page.locator("#panel-title")).toHaveText("Textiles");

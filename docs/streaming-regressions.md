@@ -38,6 +38,9 @@ Only museum data and remote images are deterministic fixtures. It checks the
 four reveal states and their order, cache replay, Back/Forward, rapid navigation,
 absence of leftover payload wrappers, and visible JavaScript-disabled content.
 The provenance failure is intentional and must not prevent other slots resolving.
+Rapid navigation starts each following native link click on the first swap event
+and requires an observed cancellation. This keeps the overlap deterministic even
+when WebKit's automated click waits for navigation I/O on Linux runners.
 
 The evaluation repeats each scenario five times in all three engines. It writes
 test-results/gallery.json and attaches per-browser reveal/navigation timings.
