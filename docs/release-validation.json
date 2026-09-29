@@ -122,6 +122,6 @@
     "Museum data is stubbed only in local/CI tests; production smoke uses live upstream data.",
     "The provenance feed intentionally renders its error boundary.",
     "D1 production recovery/mutation flow passed; its test task was removed.",
-    "npm publish is pending credential renewal; dependencies use public GitHub release tarballs with locked integrity."
+    "npm publication completed on 2026-09-29: core 0.8.0, create-app 0.7.0 and Lit 0.1.1. The release workflow passed at https://github.com/somedudeokay/nativefragments/actions/runs/36554017090. Dependencies retain public GitHub release tarballs with locked integrity."
   ]
 }

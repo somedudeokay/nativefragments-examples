@@ -51,6 +51,6 @@ evaluation output and CI. The persistent authenticated example lives in the
 [framework repository](https://github.com/somedudeokay/nativefragments/tree/main/apps/task-board)
 and runs at [Fieldwork](https://task-board.nativefragments.org).
 
-Release dependencies currently use the public GitHub 0.8 tarballs with locked
-integrity, so this checkout installs independently while npm registry publishing
-awaits a renewed credential. There are no sibling-checkout dependencies.
+Release dependencies use the public GitHub 0.8 tarballs with locked integrity.
+The same versions are also published on npm: core 0.8.0, create-app 0.7.0 and
+Lit 0.1.1. There are no sibling-checkout dependencies.
